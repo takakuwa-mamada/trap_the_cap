@@ -2,12 +2,17 @@ import asyncio
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from app.connection import manager
 from app.models import ClientAction, GameConfig
 from app.engine import init_game, add_player, roll_dice, apply_move
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/static/index.html")
 
 @app.websocket("/ws/{room_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str):
