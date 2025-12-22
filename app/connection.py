@@ -6,7 +6,11 @@ from redis.asyncio import Redis
 from app.models import GameState, ActionLog
 from app.engine import init_game, add_player, roll_dice, apply_move
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+# RenderのRedisは 'REDIS_URL' で渡ってきますが、念のためチェック
+REDIS_URL = os.getenv("REDIS_URL")
+if not REDIS_URL:
+    # ローカル開発用のフォールバック
+    REDIS_URL = "redis://localhost:6379"
 
 class ConnectionManager:
     def __init__(self):
