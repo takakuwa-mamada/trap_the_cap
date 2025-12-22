@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: copit-server
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: copit-redis
+          property: connectionString
+
+  - type: redis
+    name: copit-redis
+    ipAllowList: [] # 内部アクセスのみ
+    plan: free # または starter

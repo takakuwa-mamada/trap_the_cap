@@ -1,0 +1,32 @@
+{
+  "meta": { "name": "Standard 4P", "players": 4 },
+  "nodes": [
+    {"id": "c0", "x": 0, "y": 0, "neighbors": ["n1", "n2", "n3", "n4"], "tags": ["CENTER", "SAFE"]},
+    
+    {"id": "n1", "x": 0, "y": -2, "neighbors": ["c0", "r1_1"], "tags": ["NORMAL"]},
+    {"id": "n2", "x": 2, "y": 0, "neighbors": ["c0", "r2_1"], "tags": ["NORMAL"]},
+    {"id": "n3", "x": 0, "y": 2, "neighbors": ["c0", "r3_1"], "tags": ["NORMAL"]},
+    {"id": "n4", "x": -2, "y": 0, "neighbors": ["c0", "r4_1"], "tags": ["NORMAL"]},
+
+    {"id": "r1_1", "x": 0, "y": -4, "neighbors": ["n1", "r1_2", "loop1"], "tags": ["SAFE"]},
+    {"id": "r1_2", "x": 0, "y": -6, "neighbors": ["r1_1", "h1_1"], "tags": ["NORMAL"]},
+    {"id": "h1_1", "x": 0, "y": -8, "neighbors": ["r1_2"], "tags": ["HOME"], "home_color": "RED"},
+
+    {"id": "r2_1", "x": 4, "y": 0, "neighbors": ["n2", "r2_2", "loop2"], "tags": ["SAFE"]},
+    {"id": "r2_2", "x": 6, "y": 0, "neighbors": ["r2_1", "h2_1"], "tags": ["NORMAL"]},
+    {"id": "h2_1", "x": 8, "y": 0, "neighbors": ["r2_2"], "tags": ["HOME"], "home_color": "BLUE"},
+
+    {"id": "r3_1", "x": 0, "y": 4, "neighbors": ["n3", "r3_2", "loop3"], "tags": ["SAFE"]},
+    {"id": "r3_2", "x": 0, "y": 6, "neighbors": ["r3_1", "h3_1"], "tags": ["NORMAL"]},
+    {"id": "h3_1", "x": 0, "y": 8, "neighbors": ["r3_2"], "tags": ["HOME"], "home_color": "YELLOW"},
+
+    {"id": "r4_1", "x": -4, "y": 0, "neighbors": ["n4", "r4_2", "loop4"], "tags": ["SAFE"]},
+    {"id": "r4_2", "x": -6, "y": 0, "neighbors": ["r4_1", "h4_1"], "tags": ["NORMAL"]},
+    {"id": "h4_1", "x": -8, "y": 0, "neighbors": ["r4_2"], "tags": ["HOME"], "home_color": "GREEN"},
+
+    {"id": "loop1", "x": 2, "y": -4, "neighbors": ["r1_1", "loop2"], "tags": ["NORMAL"]},
+    {"id": "loop2", "x": 4, "y": -2, "neighbors": ["r2_1", "loop3"], "tags": ["NORMAL"]},
+    {"id": "loop3", "x": -2, "y": 4, "neighbors": ["r3_1", "loop4"], "tags": ["NORMAL"]},
+    {"id": "loop4", "x": -4, "y": 2, "neighbors": ["r4_1", "loop1"], "tags": ["NORMAL"]}
+  ]
+}

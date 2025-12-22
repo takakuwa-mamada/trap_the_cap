@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PyCopit Online</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #333; color: white; }
+        #game-container { position: relative; }
+        canvas { background: #444; border-radius: 8px; cursor: pointer; }
+        #ui { margin-top: 10px; width: 600px; display: flex; justify-content: space-between; }
+        #log { width: 600px; height: 100px; overflow-y: scroll; background: #222; font-family: monospace; padding: 5px; margin-top: 10px;}
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>PyCopit Online</h1>
+    <div id="status">Connecting...</div>
+    <div id="game-container">
+        <canvas id="board" width="600" height="600"></canvas>
+    </div>
+    <div id="ui">
+        <button id="rollBtn" disabled>ROLL</button>
+    </div>
+    <div id="log"></div>
+    <script src="/static/game.js"></script>
+</body>
+</html>
