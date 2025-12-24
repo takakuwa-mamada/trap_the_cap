@@ -65,7 +65,13 @@ async def bot_watcher_task(room_id: str):
 
 @app.get("/")
 async def root():
+    """ロビー画面（ルーム選択）"""
     return FileResponse("static/index.html")
+
+@app.get("/game.html")
+async def game():
+    """ゲーム画面"""
+    return FileResponse("static/game.html")
 
 @app.websocket("/ws/{room_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str):
