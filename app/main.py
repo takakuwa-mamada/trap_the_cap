@@ -1,5 +1,7 @@
 import asyncio
 import json
+import os
+from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, FileResponse
@@ -15,8 +17,20 @@ from app.bot import execute_bot_turn, bot_think_delay
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 盤面データを起動時にロード
-BOARD_COPPIT = Board.from_json_file("app/data/board_4p_coppit.json")
+# 盤面データを起動時にロード（環境に依存しないパス）
+BASE_DIR = Path(__file__).resolve().parent.parent
+BOARD_PATH = BASE_DIR / "app" / "data" / "board_4p_coppit.json"
+
+print(f"[Startup] Loading board from: {BOARD_PATH}")
+print(f"[Startup] File exists: {BOARD_PATH.exists()}")
+
+if not BOARD_PATH.exists():
+    # フォールバック: カレントディレクトリからの相対パス
+    BOARD_PATH = Path("app/data/board_4p_coppit.json")
+    print(f"[Startup] Trying fallback path: {BOARD_PATH}")
+
+BOARD_COPPIT = Board.from_json_file(str(BOARD_PATH))
+print(f"[Startup] Board loaded successfully: {len(BOARD_COPPIT.nodes)} nodes")
 
 # Bot監視タスク
 BOT_TASKS = {}

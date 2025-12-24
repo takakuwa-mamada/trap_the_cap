@@ -43,6 +43,16 @@ ws.onopen = () => {
     console.log('[WS] WebSocket connected successfully');
 };
 
+ws.onerror = (error) => {
+    console.error('[WS] WebSocket error:', error);
+    statusDiv.textContent = '接続エラー';
+};
+
+ws.onclose = (event) => {
+    console.log('[WS] WebSocket closed:', event.code, event.reason);
+    statusDiv.textContent = '接続が切断されました';
+};
+
 ws.onmessage = (event) => {
     const message = JSON.parse(event.data);
     console.log('[WS] Received:', message.type || 'unknown', message);
