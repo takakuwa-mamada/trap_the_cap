@@ -1,0 +1,530 @@
+{
+  "meta": {
+    "name": "Coppit 4-Player Board (Accurate)",
+    "description": "Based on actual board image with outer ring + central X cross",
+    "version": "3.0",
+    "players": 4,
+    "total_nodes": 61,
+    "reference": "https://yama.kitashirakawa.jp/yama-blog/?p=1980"
+  },
+  "config": {
+    "outer_ring_size": 48,
+    "has_central_cross": true,
+    "box_count": 4
+  },
+  "nodes": [
+    {
+      "id": "box_red",
+      "x": -4.0,
+      "y": -4.0,
+      "neighbors": ["outer_0"],
+      "tags": ["BOX", "SAFE"],
+      "color": "RED",
+      "description": "Red home base (top-left corner)"
+    },
+    {
+      "id": "box_blue",
+      "x": 4.0,
+      "y": 4.0,
+      "neighbors": ["outer_24"],
+      "tags": ["BOX", "SAFE"],
+      "color": "BLUE",
+      "description": "Blue home base (bottom-right corner)"
+    },
+    {
+      "id": "box_yellow",
+      "x": -4.0,
+      "y": 4.0,
+      "neighbors": ["outer_36"],
+      "tags": ["BOX", "SAFE"],
+      "color": "YELLOW",
+      "description": "Yellow home base (bottom-left corner)"
+    },
+    {
+      "id": "box_green",
+      "x": 4.0,
+      "y": -4.0,
+      "neighbors": ["outer_12"],
+      "tags": ["BOX", "SAFE"],
+      "color": "GREEN",
+      "description": "Green home base (top-right corner)"
+    },
+    
+    {
+      "id": "outer_0",
+      "x": -3.0,
+      "y": -3.0,
+      "neighbors": ["box_red", "outer_1", "outer_47"],
+      "tags": ["NORMAL"],
+      "description": "Red box entry point"
+    },
+    {
+      "id": "outer_1",
+      "x": -2.5,
+      "y": -3.0,
+      "neighbors": ["outer_0", "outer_2"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_2",
+      "x": -2.0,
+      "y": -3.0,
+      "neighbors": ["outer_1", "outer_3"],
+      "tags": ["SAFE_COLOR"],
+      "color": "GREEN",
+      "description": "Green safe square"
+    },
+    {
+      "id": "outer_3",
+      "x": -1.5,
+      "y": -3.0,
+      "neighbors": ["outer_2", "outer_4"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_4",
+      "x": -1.0,
+      "y": -3.0,
+      "neighbors": ["outer_3", "outer_5"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_5",
+      "x": -0.5,
+      "y": -3.0,
+      "neighbors": ["outer_4", "outer_6"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_6",
+      "x": 0.0,
+      "y": -3.0,
+      "neighbors": ["outer_5", "outer_7", "cross_n_entry"],
+      "tags": ["JUNCTION"],
+      "description": "Junction to northern cross"
+    },
+    {
+      "id": "outer_7",
+      "x": 0.5,
+      "y": -3.0,
+      "neighbors": ["outer_6", "outer_8"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_8",
+      "x": 1.0,
+      "y": -3.0,
+      "neighbors": ["outer_7", "outer_9"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_9",
+      "x": 1.5,
+      "y": -3.0,
+      "neighbors": ["outer_8", "outer_10"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_10",
+      "x": 2.0,
+      "y": -3.0,
+      "neighbors": ["outer_9", "outer_11"],
+      "tags": ["SAFE_COLOR"],
+      "color": "BLUE",
+      "description": "Blue safe square"
+    },
+    {
+      "id": "outer_11",
+      "x": 2.5,
+      "y": -3.0,
+      "neighbors": ["outer_10", "outer_12"],
+      "tags": ["NORMAL"]
+    },
+    
+    {
+      "id": "outer_12",
+      "x": 3.0,
+      "y": -3.0,
+      "neighbors": ["box_green", "outer_11", "outer_13"],
+      "tags": ["NORMAL"],
+      "description": "Green box entry point"
+    },
+    {
+      "id": "outer_13",
+      "x": 3.0,
+      "y": -2.5,
+      "neighbors": ["outer_12", "outer_14"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_14",
+      "x": 3.0,
+      "y": -2.0,
+      "neighbors": ["outer_13", "outer_15"],
+      "tags": ["SAFE_COLOR"],
+      "color": "RED",
+      "description": "Red safe square"
+    },
+    {
+      "id": "outer_15",
+      "x": 3.0,
+      "y": -1.5,
+      "neighbors": ["outer_14", "outer_16"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_16",
+      "x": 3.0,
+      "y": -1.0,
+      "neighbors": ["outer_15", "outer_17"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_17",
+      "x": 3.0,
+      "y": -0.5,
+      "neighbors": ["outer_16", "outer_18"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_18",
+      "x": 3.0,
+      "y": 0.0,
+      "neighbors": ["outer_17", "outer_19", "cross_e_entry"],
+      "tags": ["JUNCTION"],
+      "description": "Junction to eastern cross"
+    },
+    {
+      "id": "outer_19",
+      "x": 3.0,
+      "y": 0.5,
+      "neighbors": ["outer_18", "outer_20"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_20",
+      "x": 3.0,
+      "y": 1.0,
+      "neighbors": ["outer_19", "outer_21"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_21",
+      "x": 3.0,
+      "y": 1.5,
+      "neighbors": ["outer_20", "outer_22"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_22",
+      "x": 3.0,
+      "y": 2.0,
+      "neighbors": ["outer_21", "outer_23"],
+      "tags": ["SAFE_COLOR"],
+      "color": "YELLOW",
+      "description": "Yellow safe square"
+    },
+    {
+      "id": "outer_23",
+      "x": 3.0,
+      "y": 2.5,
+      "neighbors": ["outer_22", "outer_24"],
+      "tags": ["NORMAL"]
+    },
+    
+    {
+      "id": "outer_24",
+      "x": 3.0,
+      "y": 3.0,
+      "neighbors": ["box_blue", "outer_23", "outer_25"],
+      "tags": ["NORMAL"],
+      "description": "Blue box entry point"
+    },
+    {
+      "id": "outer_25",
+      "x": 2.5,
+      "y": 3.0,
+      "neighbors": ["outer_24", "outer_26"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_26",
+      "x": 2.0,
+      "y": 3.0,
+      "neighbors": ["outer_25", "outer_27"],
+      "tags": ["SAFE_COLOR"],
+      "color": "GREEN",
+      "description": "Green safe square"
+    },
+    {
+      "id": "outer_27",
+      "x": 1.5,
+      "y": 3.0,
+      "neighbors": ["outer_26", "outer_28"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_28",
+      "x": 1.0,
+      "y": 3.0,
+      "neighbors": ["outer_27", "outer_29"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_29",
+      "x": 0.5,
+      "y": 3.0,
+      "neighbors": ["outer_28", "outer_30"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_30",
+      "x": 0.0,
+      "y": 3.0,
+      "neighbors": ["outer_29", "outer_31", "cross_s_entry"],
+      "tags": ["JUNCTION"],
+      "description": "Junction to southern cross"
+    },
+    {
+      "id": "outer_31",
+      "x": -0.5,
+      "y": 3.0,
+      "neighbors": ["outer_30", "outer_32"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_32",
+      "x": -1.0,
+      "y": 3.0,
+      "neighbors": ["outer_31", "outer_33"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_33",
+      "x": -1.5,
+      "y": 3.0,
+      "neighbors": ["outer_32", "outer_34"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_34",
+      "x": -2.0,
+      "y": 3.0,
+      "neighbors": ["outer_33", "outer_35"],
+      "tags": ["SAFE_COLOR"],
+      "color": "RED",
+      "description": "Red safe square"
+    },
+    {
+      "id": "outer_35",
+      "x": -2.5,
+      "y": 3.0,
+      "neighbors": ["outer_34", "outer_36"],
+      "tags": ["NORMAL"]
+    },
+    
+    {
+      "id": "outer_36",
+      "x": -3.0,
+      "y": 3.0,
+      "neighbors": ["box_yellow", "outer_35", "outer_37"],
+      "tags": ["NORMAL"],
+      "description": "Yellow box entry point"
+    },
+    {
+      "id": "outer_37",
+      "x": -3.0,
+      "y": 2.5,
+      "neighbors": ["outer_36", "outer_38"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_38",
+      "x": -3.0,
+      "y": 2.0,
+      "neighbors": ["outer_37", "outer_39"],
+      "tags": ["SAFE_COLOR"],
+      "color": "BLUE",
+      "description": "Blue safe square"
+    },
+    {
+      "id": "outer_39",
+      "x": -3.0,
+      "y": 1.5,
+      "neighbors": ["outer_38", "outer_40"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_40",
+      "x": -3.0,
+      "y": 1.0,
+      "neighbors": ["outer_39", "outer_41"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_41",
+      "x": -3.0,
+      "y": 0.5,
+      "neighbors": ["outer_40", "outer_42"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_42",
+      "x": -3.0,
+      "y": 0.0,
+      "neighbors": ["outer_41", "outer_43", "cross_w_entry"],
+      "tags": ["JUNCTION"],
+      "description": "Junction to western cross"
+    },
+    {
+      "id": "outer_43",
+      "x": -3.0,
+      "y": -0.5,
+      "neighbors": ["outer_42", "outer_44"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_44",
+      "x": -3.0,
+      "y": -1.0,
+      "neighbors": ["outer_43", "outer_45"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_45",
+      "x": -3.0,
+      "y": -1.5,
+      "neighbors": ["outer_44", "outer_46"],
+      "tags": ["NORMAL"]
+    },
+    {
+      "id": "outer_46",
+      "x": -3.0,
+      "y": -2.0,
+      "neighbors": ["outer_45", "outer_47"],
+      "tags": ["SAFE_COLOR"],
+      "color": "YELLOW",
+      "description": "Yellow safe square"
+    },
+    {
+      "id": "outer_47",
+      "x": -3.0,
+      "y": -2.5,
+      "neighbors": ["outer_46", "outer_0"],
+      "tags": ["NORMAL"]
+    },
+    
+    {
+      "id": "cross_n_entry",
+      "x": 0.0,
+      "y": -2.5,
+      "neighbors": ["outer_6", "cross_n_1"],
+      "tags": ["CROSS"],
+      "description": "Northern cross entry"
+    },
+    {
+      "id": "cross_n_1",
+      "x": 0.0,
+      "y": -2.0,
+      "neighbors": ["cross_n_entry", "cross_n_2"],
+      "tags": ["CROSS", "SAFE_COLOR"],
+      "color": "GREEN"
+    },
+    {
+      "id": "cross_n_2",
+      "x": 0.0,
+      "y": -1.5,
+      "neighbors": ["cross_n_1", "cross_center"],
+      "tags": ["CROSS"]
+    },
+    
+    {
+      "id": "cross_e_entry",
+      "x": 2.5,
+      "y": 0.0,
+      "neighbors": ["outer_18", "cross_e_1"],
+      "tags": ["CROSS"],
+      "description": "Eastern cross entry"
+    },
+    {
+      "id": "cross_e_1",
+      "x": 2.0,
+      "y": 0.0,
+      "neighbors": ["cross_e_entry", "cross_e_2"],
+      "tags": ["CROSS", "SAFE_COLOR"],
+      "color": "RED"
+    },
+    {
+      "id": "cross_e_2",
+      "x": 1.5,
+      "y": 0.0,
+      "neighbors": ["cross_e_1", "cross_center"],
+      "tags": ["CROSS"]
+    },
+    
+    {
+      "id": "cross_s_entry",
+      "x": 0.0,
+      "y": 2.5,
+      "neighbors": ["outer_30", "cross_s_1"],
+      "tags": ["CROSS"],
+      "description": "Southern cross entry"
+    },
+    {
+      "id": "cross_s_1",
+      "x": 0.0,
+      "y": 2.0,
+      "neighbors": ["cross_s_entry", "cross_s_2"],
+      "tags": ["CROSS", "SAFE_COLOR"],
+      "color": "YELLOW"
+    },
+    {
+      "id": "cross_s_2",
+      "x": 0.0,
+      "y": 1.5,
+      "neighbors": ["cross_s_1", "cross_center"],
+      "tags": ["CROSS"]
+    },
+    
+    {
+      "id": "cross_w_entry",
+      "x": -2.5,
+      "y": 0.0,
+      "neighbors": ["outer_42", "cross_w_1"],
+      "tags": ["CROSS"],
+      "description": "Western cross entry"
+    },
+    {
+      "id": "cross_w_1",
+      "x": -2.0,
+      "y": 0.0,
+      "neighbors": ["cross_w_entry", "cross_w_2"],
+      "tags": ["CROSS", "SAFE_COLOR"],
+      "color": "BLUE"
+    },
+    {
+      "id": "cross_w_2",
+      "x": -1.5,
+      "y": 0.0,
+      "neighbors": ["cross_w_1", "cross_center"],
+      "tags": ["CROSS"]
+    },
+    
+    {
+      "id": "cross_center",
+      "x": 0.0,
+      "y": 0.0,
+      "neighbors": ["cross_n_2", "cross_e_2", "cross_s_2", "cross_w_2"],
+      "tags": ["CROSS", "CENTER"],
+      "description": "Central cross intersection (all colors can pass through)"
+    }
+  ],
+  "validation": {
+    "total_nodes": 61,
+    "outer_ring_nodes": 48,
+    "cross_nodes": 9,
+    "box_nodes": 4,
+    "safe_color_nodes": 12,
+    "junction_nodes": 4
+  }
+}

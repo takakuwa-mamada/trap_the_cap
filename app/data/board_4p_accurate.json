@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "name": "Accurate 4-Player Circular Board",
+    "description": "Based on actual board image with double ring and cross shortcut",
+    "players": 4,
+    "total_nodes": 68,
+    "version": "2.0"
+  },
+  "config": {
+    "outer_ring_size": 48,
+    "has_inner_shortcut": true,
+    "colored_squares_are_home": true
+  },
+  "nodes": [
+    {
+      "id": "start_red",
+      "x": -3.5,
+      "y": -3.5,
+      "neighbors": ["outer_0"],
+      "tags": ["START", "BOX"],
+      "home_color": "RED",
+      "description": "Red starting box (top-left)"
+    },
+    {
+      "id": "start_blue",
+      "x": 3.5,
+      "y": -3.5,
+      "neighbors": ["outer_12"],
+      "tags": ["START", "BOX"],
+      "home_color": "BLUE",
+      "description": "Blue starting box (top-right)"
+    },
+    {
+      "id": "start_yellow",
+      "x": -3.5,
+      "y": 3.5,
+      "neighbors": ["outer_36"],
+      "tags": ["START", "BOX"],
+      "home_color": "YELLOW",
+      "description": "Yellow starting box (bottom-left)"
+    },
+    {
+      "id": "start_green",
+      "x": 3.5,
+      "y": 3.5,
+      "neighbors": ["outer_24"],
+      "tags": ["START", "BOX"],
+      "home_color": "GREEN",
+      "description": "Green starting box (bottom-right)"
+    },
+    
+    {"id": "outer_0", "x": 0.0, "y": -2.5, "neighbors": ["start_red", "outer_1", "outer_47"], "tags": ["NORMAL"]},
+    {"id": "outer_1", "x": 0.3, "y": -2.5, "neighbors": ["outer_0", "outer_2"], "tags": ["NORMAL"]},
+    {"id": "outer_2", "x": 0.6, "y": -2.45, "neighbors": ["outer_1", "outer_3"], "tags": ["NORMAL"]},
+    {"id": "outer_3", "x": 0.9, "y": -2.35, "neighbors": ["outer_2", "outer_4"], "tags": ["NORMAL"]},
+    {"id": "outer_4", "x": 1.2, "y": -2.2, "neighbors": ["outer_3", "outer_5"], "tags": ["NORMAL"]},
+    {"id": "outer_5", "x": 1.5, "y": -2.0, "neighbors": ["outer_4", "outer_6"], "tags": ["NORMAL"]},
+    {"id": "outer_6", "x": 1.75, "y": -1.75, "neighbors": ["outer_5", "outer_7"], "tags": ["SAFE"], "home_color": "GREEN", "description": "Green safe square"},
+    {"id": "outer_7", "x": 2.0, "y": -1.5, "neighbors": ["outer_6", "outer_8", "inner_n_0"], "tags": ["JUNCTION"]},
+    {"id": "outer_8", "x": 2.2, "y": -1.2, "neighbors": ["outer_7", "outer_9"], "tags": ["NORMAL"]},
+    {"id": "outer_9", "x": 2.35, "y": -0.9, "neighbors": ["outer_8", "outer_10"], "tags": ["NORMAL"]},
+    {"id": "outer_10", "x": 2.45, "y": -0.6, "neighbors": ["outer_9", "outer_11"], "tags": ["NORMAL"]},
+    {"id": "outer_11", "x": 2.5, "y": -0.3, "neighbors": ["outer_10", "outer_12"], "tags": ["NORMAL"]},
+    
+    {"id": "outer_12", "x": 2.5, "y": 0.0, "neighbors": ["start_blue", "outer_11", "outer_13"], "tags": ["NORMAL"]},
+    {"id": "outer_13", "x": 2.5, "y": 0.3, "neighbors": ["outer_12", "outer_14"], "tags": ["NORMAL"]},
+    {"id": "outer_14", "x": 2.45, "y": 0.6, "neighbors": ["outer_13", "outer_15"], "tags": ["NORMAL"]},
+    {"id": "outer_15", "x": 2.35, "y": 0.9, "neighbors": ["outer_14", "outer_16"], "tags": ["NORMAL"]},
+    {"id": "outer_16", "x": 2.2, "y": 1.2, "neighbors": ["outer_15", "outer_17"], "tags": ["NORMAL"]},
+    {"id": "outer_17", "x": 2.0, "y": 1.5, "neighbors": ["outer_16", "outer_18"], "tags": ["NORMAL"]},
+    {"id": "outer_18", "x": 1.75, "y": 1.75, "neighbors": ["outer_17", "outer_19"], "tags": ["SAFE"], "home_color": "RED", "description": "Red safe square"},
+    {"id": "outer_19", "x": 1.5, "y": 2.0, "neighbors": ["outer_18", "outer_20", "inner_e_0"], "tags": ["JUNCTION"]},
+    {"id": "outer_20", "x": 1.2, "y": 2.2, "neighbors": ["outer_19", "outer_21"], "tags": ["NORMAL"]},
+    {"id": "outer_21", "x": 0.9, "y": 2.35, "neighbors": ["outer_20", "outer_22"], "tags": ["NORMAL"]},
+    {"id": "outer_22", "x": 0.6, "y": 2.45, "neighbors": ["outer_21", "outer_23"], "tags": ["NORMAL"]},
+    {"id": "outer_23", "x": 0.3, "y": 2.5, "neighbors": ["outer_22", "outer_24"], "tags": ["NORMAL"]},
+    
+    {"id": "outer_24", "x": 0.0, "y": 2.5, "neighbors": ["start_green", "outer_23", "outer_25"], "tags": ["NORMAL"]},
+    {"id": "outer_25", "x": -0.3, "y": 2.5, "neighbors": ["outer_24", "outer_26"], "tags": ["NORMAL"]},
+    {"id": "outer_26", "x": -0.6, "y": 2.45, "neighbors": ["outer_25", "outer_27"], "tags": ["NORMAL"]},
+    {"id": "outer_27", "x": -0.9, "y": 2.35, "neighbors": ["outer_26", "outer_28"], "tags": ["NORMAL"]},
+    {"id": "outer_28", "x": -1.2, "y": 2.2, "neighbors": ["outer_27", "outer_29"], "tags": ["NORMAL"]},
+    {"id": "outer_29", "x": -1.5, "y": 2.0, "neighbors": ["outer_28", "outer_30"], "tags": ["NORMAL"]},
+    {"id": "outer_30", "x": -1.75, "y": 1.75, "neighbors": ["outer_29", "outer_31"], "tags": ["SAFE"], "home_color": "BLUE", "description": "Blue safe square"},
+    {"id": "outer_31", "x": -2.0, "y": 1.5, "neighbors": ["outer_30", "outer_32", "inner_s_0"], "tags": ["JUNCTION"]},
+    {"id": "outer_32", "x": -2.2, "y": 1.2, "neighbors": ["outer_31", "outer_33"], "tags": ["NORMAL"]},
+    {"id": "outer_33", "x": -2.35, "y": 0.9, "neighbors": ["outer_32", "outer_34"], "tags": ["NORMAL"]},
+    {"id": "outer_34", "x": -2.45, "y": 0.6, "neighbors": ["outer_33", "outer_35"], "tags": ["NORMAL"]},
+    {"id": "outer_35", "x": -2.5, "y": 0.3, "neighbors": ["outer_34", "outer_36"], "tags": ["NORMAL"]},
+    
+    {"id": "outer_36", "x": -2.5, "y": 0.0, "neighbors": ["start_yellow", "outer_35", "outer_37"], "tags": ["NORMAL"]},
+    {"id": "outer_37", "x": -2.5, "y": -0.3, "neighbors": ["outer_36", "outer_38"], "tags": ["NORMAL"]},
+    {"id": "outer_38", "x": -2.45, "y": -0.6, "neighbors": ["outer_37", "outer_39"], "tags": ["NORMAL"]},
+    {"id": "outer_39", "x": -2.35, "y": -0.9, "neighbors": ["outer_38", "outer_40"], "tags": ["NORMAL"]},
+    {"id": "outer_40", "x": -2.2, "y": -1.2, "neighbors": ["outer_39", "outer_41"], "tags": ["NORMAL"]},
+    {"id": "outer_41", "x": -2.0, "y": -1.5, "neighbors": ["outer_40", "outer_42"], "tags": ["NORMAL"]},
+    {"id": "outer_42", "x": -1.75, "y": -1.75, "neighbors": ["outer_41", "outer_43"], "tags": ["SAFE"], "home_color": "YELLOW", "description": "Yellow safe square"},
+    {"id": "outer_43", "x": -1.5, "y": -2.0, "neighbors": ["outer_42", "outer_44", "inner_w_0"], "tags": ["JUNCTION"]},
+    {"id": "outer_44", "x": -1.2, "y": -2.2, "neighbors": ["outer_43", "outer_45"], "tags": ["NORMAL"]},
+    {"id": "outer_45", "x": -0.9, "y": -2.35, "neighbors": ["outer_44", "outer_46"], "tags": ["NORMAL"]},
+    {"id": "outer_46", "x": -0.6, "y": -2.45, "neighbors": ["outer_45", "outer_47"], "tags": ["NORMAL"]},
+    {"id": "outer_47", "x": -0.3, "y": -2.5, "neighbors": ["outer_46", "outer_0"], "tags": ["NORMAL"]},
+    
+    {"id": "inner_n_0", "x": 1.5, "y": -1.0, "neighbors": ["outer_7", "inner_n_1"], "tags": ["SHORTCUT"]},
+    {"id": "inner_n_1", "x": 1.0, "y": -0.5, "neighbors": ["inner_n_0", "inner_center"], "tags": ["SHORTCUT"]},
+    
+    {"id": "inner_e_0", "x": 1.0, "y": 1.5, "neighbors": ["outer_19", "inner_e_1"], "tags": ["SHORTCUT"]},
+    {"id": "inner_e_1", "x": 0.5, "y": 1.0, "neighbors": ["inner_e_0", "inner_center"], "tags": ["SHORTCUT"]},
+    
+    {"id": "inner_s_0", "x": -1.5, "y": 1.0, "neighbors": ["outer_31", "inner_s_1"], "tags": ["SHORTCUT"]},
+    {"id": "inner_s_1", "x": -1.0, "y": 0.5, "neighbors": ["inner_s_0", "inner_center"], "tags": ["SHORTCUT"]},
+    
+    {"id": "inner_w_0", "x": -1.0, "y": -1.5, "neighbors": ["outer_43", "inner_w_1"], "tags": ["SHORTCUT"]},
+    {"id": "inner_w_1", "x": -0.5, "y": -1.0, "neighbors": ["inner_w_0", "inner_center"], "tags": ["SHORTCUT"]},
+    
+    {"id": "inner_center", "x": 0.0, "y": 0.0, "neighbors": ["inner_n_1", "inner_e_1", "inner_s_1", "inner_w_1"], "tags": ["CENTER", "SAFE"], "description": "Central safe zone"}
+  ]
+}

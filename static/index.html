@@ -1,28 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>PyCopit Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coppit Online - コピット</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #333; color: white; }
-        #game-container { position: relative; }
-        canvas { background: #444; border-radius: 8px; cursor: pointer; }
-        #ui { margin-top: 10px; width: 600px; display: flex; justify-content: space-between; }
-        #log { width: 600px; height: 100px; overflow-y: scroll; background: #222; font-family: monospace; padding: 5px; margin-top: 10px;}
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 {
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #game-container { 
+            position: relative;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        canvas { 
+            background: #2a2a3e;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        #status {
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 16px;
+            text-align: center;
+            min-width: 600px;
+        }
+        #players-info {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            min-width: 600px;
+            font-size: 14px;
+        }
+        #players-info div {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 4px solid;
+        }
+        #ui { 
+            margin-top: 10px;
+            width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #direction-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .dir-btn {
+            padding: 8px 20px;
+            font-size: 16px;
+        }
+        #log { 
+            width: 600px;
+            height: 120px;
+            overflow-y: scroll;
+            background: rgba(0,0,0,0.5);
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        #log::-webkit-scrollbar {
+            width: 8px;
+        }
+        #log::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+        #log::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        button { 
+            padding: 12px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled { 
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            max-width: 600px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .info h3 {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
-    <h1>PyCopit Online</h1>
-    <div id="status">Connecting...</div>
+    <h1>🎩 コピット オンライン</h1>
+    <div id="status">接続中...</div>
+    <div id="players-info"></div>
     <div id="game-container">
         <canvas id="board" width="600" height="600"></canvas>
     </div>
     <div id="ui">
-        <button id="rollBtn" disabled>ROLL</button>
+        <button id="rollBtn" disabled>🎲 サイコロを振る</button>
+        <div id="direction-buttons" style="display: none;">
+            <button class="dir-btn" data-dir="CW">↻ 時計回り</button>
+            <button class="dir-btn" data-dir="CCW">↺ 反時計回り</button>
+            <button class="dir-btn" data-dir="IN">→ 中心へ</button>
+            <button class="dir-btn" data-dir="OUT">← 外側へ</button>
+        </div>
     </div>
     <div id="log"></div>
+    <div class="info">
+        <h3>📖 遊び方</h3>
+        <p>
+            <b>目的：</b> 相手の帽子を捕まえて、自分のBOXに持ち帰ろう！<br><br>
+            <b>操作方法：</b><br>
+            ① 自分のターンになったら「サイコロを振る」ボタンをクリック<br>
+            ② 黄色く光っている駒（帽子の山）をクリックして選択<br>
+            ③ 方向選択が必要な場合はボタンで選択<br>
+            ④ 自動的に相手のターンに移ります<br><br>
+            <b>特別ルール：</b><br>
+            • 6を出すとBOXから新しい駒を出せます<br>
+            • 自分の色のマスは安全地帯です<br>
+            • 相手の駒に乗ると捕獲できます！
+        </p>
+    </div>
     <script src="/static/game.js"></script>
 </body>
 </html>
