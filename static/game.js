@@ -10,7 +10,106 @@ console.log('[Init] Host:', window.location.host);
 const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/${roomId}/${playerId}`;
 console.log('[Init] WebSocket URL:', wsUrl);
 
-const ws = new WebSocket(wsUrl);
+let ws = null;
+let connectionTimeout = null;
+let isConnected = false;
+
+function connectWebSocket() {
+    console.log('[WS] Attempting connection...');
+    statusDiv.textContent = '接続中...';
+    
+    // 接続タイムアウト（10秒）
+    connectionTimeout = setTimeout(() => {
+        if (!isConnected) {
+            console.error('[WS] Connection timeout');
+            statusDiv.textContent = '接続タイムアウト - 再読み込みしてください';
+            if (ws) {
+                ws.close();
+            }
+        }
+    }, 10000);
+    
+    ws = new WebSocket(wsUrl);
+    
+    ws.onopen = () => {
+        clearTimeout(connectionTimeout);
+        isConnected = true;
+        statusDiv.textContent = '接続完了！';
+        console.log('[WS] WebSocket connected successfully');
+    };
+    
+    ws.onerror = (error) => {
+        console.error('[WS] WebSocket error:', error);
+        statusDiv.textContent = '接続エラー - サーバーに接続できません';
+    };
+    
+    ws.onclose = (event) => {
+        clearTimeout(connectionTimeout);
+        isConnected = false;
+        console.log('[WS] WebSocket closed:', event.code, event.reason);
+        statusDiv.textContent = '接続が切断されました';
+    };
+    
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log('[WS] Received:', message.type || 'unknown', message);
+        
+        // Direct state broadcast (GameState object) - 最優先で処理
+        if (message.board && !message.type) {
+            gameState = message;
+            console.log('[WS] Full state update');
+            // legalStacksはクリアしない（他のメッセージで管理）
+            render();
+            updateUI();
+            return;
+        }
+        
+        if (message.type === 'state_update') {
+            gameState = message.payload.game_state;
+            console.log('[WS] State update');
+            render();
+            updateUI();
+        } else if (message.type === 'legal_pieces') {
+            console.log('[WS] ===== LEGAL PIECES RECEIVED =====');
+            console.log('[WS] Stacks:', message.stacks);
+            console.log('[WS] Dice:', message.dice_value);
+            
+            legalStacks = message.stacks || [];
+            legalDestinations = []; // リセット
+            
+            // サイコロの結果を画面に表示
+            if (message.dice_value) {
+                const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                statusDiv.textContent = `🎲 ${diceEmojis[message.dice_value - 1]} ${message.dice_value}が出ました!`;
+                
+                if (legalStacks.length === 0) {
+                    statusDiv.textContent += ' | 移動できる駒がありません';
+                } else {
+                    statusDiv.textContent += ` | ${legalStacks.length}個の駒を動かせます（黄色でハイライト）`;
+                }
+            }
+            
+            console.log('[WS] Calling render with legalStacks:', legalStacks.length);
+            render();
+            updateUI();
+        } else if (message.type === 'legal_directions') {
+            legalDirections = message.directions || [];
+            console.log('Legal directions received:', legalDirections);
+            updateUI();
+        } else if (message.type === 'legal_destinations') {
+            console.log('[WS] ===== LEGAL DESTINATIONS RECEIVED =====');
+            legalDestinations = message.nodes || [];
+            console.log('Legal destinations:', legalDestinations);
+            render();
+            updateUI();
+        }
+    };
+    
+    return ws;
+}
+
+// 初回接続
+ws = connectWebSocket();
 
 let gameState = null;
 let legalStacks = [];
@@ -37,97 +136,6 @@ console.log('[Init] UI elements:', {
     statusDiv: !!statusDiv,
     directionButtonsDiv: !!directionButtonsDiv
 });
-
-ws.onopen = () => {
-    statusDiv.textContent = '接続完了！';
-    console.log('[WS] WebSocket connected successfully');
-};
-
-ws.onerror = (error) => {
-    console.error('[WS] WebSocket error:', error);
-    statusDiv.textContent = '接続エラー';
-};
-
-ws.onclose = (event) => {
-    console.log('[WS] WebSocket closed:', event.code, event.reason);
-    statusDiv.textContent = '接続が切断されました';
-};
-
-ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    console.log('[WS] Received:', message.type || 'unknown', message);
-    
-    // Direct state broadcast (GameState object) - 最優先で処理
-    if (message.board && !message.type) {
-        gameState = message;
-        console.log('[WS] Full state update');
-        // legalStacksはクリアしない（他のメッセージで管理）
-        render();
-        updateUI();
-        return;
-    }
-    
-    if (message.type === 'state_update') {
-        gameState = message.payload.game_state;
-        console.log('[WS] State update');
-        render();
-        updateUI();
-    } else if (message.type === 'legal_pieces') {
-        console.log('[WS] ===== LEGAL PIECES RECEIVED =====');
-        console.log('[WS] Stacks:', message.stacks);
-        console.log('[WS] Dice:', message.dice_value);
-        
-        legalStacks = message.stacks || [];
-        legalDestinations = []; // リセット
-        
-        // サイコロの結果を画面に表示
-        if (message.dice_value) {
-            const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-            statusDiv.textContent = `🎲 ${diceEmojis[message.dice_value - 1]} ${message.dice_value}が出ました!`;
-            
-            if (legalStacks.length === 0) {
-                statusDiv.textContent += ' | 移動できる駒がありません';
-            } else {
-                statusDiv.textContent += ` | ${legalStacks.length}個の駒を動かせます（黄色でハイライト）`;
-            }
-        }
-        
-        console.log('[WS] Calling render with legalStacks:', legalStacks.length);
-        render();
-        updateUI();
-    } else if (message.type === 'legal_destinations') {
-        legalDestinations = message.nodes || [];
-        console.log('Legal destinations:', legalDestinations);
-        legalStacks = []; // リセット
-        render();
-        updateUI();
-    } else if (message.type === 'legal_directions') {
-        legalDirections = message.directions || [];
-        console.log('Legal directions:', legalDirections);
-        updateUI();
-    } else {
-        console.warn('[WS] Unknown message:', message);
-    }
-};
-
-ws.onerror = (error) => {
-    console.error('[WS] WebSocket error:', error);
-    console.error('[WS] Error details:', {
-        type: error.type,
-        target: error.target,
-        readyState: ws.readyState
-    });
-    statusDiv.textContent = 'Connection error! (接続エラー)';
-};
-
-ws.onclose = (event) => {
-    console.log('[WS] WebSocket closed:', {
-        code: event.code,
-        reason: event.reason,
-        wasClean: event.wasClean
-    });
-    statusDiv.textContent = '切断されました (code: ' + event.code + ')';
-};
 
 function sendAction(type, payload = {}) {
     ws.send(JSON.stringify({ type, payload }));
