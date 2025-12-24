@@ -106,6 +106,19 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
             color_name = color_names.get(player_color.value, player_color.value)
             # プレイヤーを追加
             state = add_player(state, player_id, color_name)
+            
+            # プレイヤーが少ない場合、Botを自動追加してゲームを開始可能にする
+            while len(state.players) < state.config.max_players and state.phase == GamePhase.WAITING:
+                bot_used_colors = {p.color for p in state.players.values()}
+                bot_available_colors = [c for c in PlayerColor if c not in bot_used_colors]
+                if bot_available_colors:
+                    bot_color = bot_available_colors[0]
+                    bot_name = f"Bot {color_names.get(bot_color.value, bot_color.value)}"
+                    bot_id = f"bot_{bot_color.value.lower()}"
+                    state = add_player(state, bot_id, bot_name, is_bot=True)
+                    print(f"[WebSocket] Auto-added bot: {bot_id} ({bot_name})")
+                else:
+                    break
     
     await manager.save_state(state)
     print(f"[WebSocket] State saved, players: {len(state.players)}, stacks: {len(state.stacks)}")
