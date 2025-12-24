@@ -7,6 +7,34 @@ console.log('[Init] Room:', roomId, 'Player:', playerId);
 console.log('[Init] Protocol:', window.location.protocol);
 console.log('[Init] Host:', window.location.host);
 
+// グローバル変数の宣言（先に宣言）
+let gameState = null;
+let legalStacks = [];
+let legalDirections = [];
+let legalDestinations = []; // 移動可能なノード
+
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+const logDiv = document.getElementById('log');
+
+// UI Elements
+const rollBtn = document.getElementById('rollBtn');
+const statusDiv = document.getElementById('status');
+const directionButtonsDiv = document.getElementById('direction-buttons');
+
+// Settings
+const SCALE = 50;
+const OFFSET_X = 300;
+const OFFSET_Y = 300;
+
+console.log('[Init] UI elements:', {
+    canvas: !!canvas,
+    rollBtn: !!rollBtn,
+    statusDiv: !!statusDiv,
+    directionButtonsDiv: !!directionButtonsDiv
+});
+
+// WebSocket接続
 const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/${roomId}/${playerId}`;
 console.log('[Init] WebSocket URL:', wsUrl);
 
@@ -110,32 +138,6 @@ function connectWebSocket() {
 
 // 初回接続
 ws = connectWebSocket();
-
-let gameState = null;
-let legalStacks = [];
-let legalDirections = [];
-let legalDestinations = []; // 移動可能なノード
-
-const canvas = document.getElementById('board');
-const ctx = canvas.getContext('2d');
-const logDiv = document.getElementById('log');
-
-// UI Elements
-const rollBtn = document.getElementById('rollBtn');
-const statusDiv = document.getElementById('status');
-const directionButtonsDiv = document.getElementById('direction-buttons');
-
-// Settings
-const SCALE = 50;
-const OFFSET_X = 300;
-const OFFSET_Y = 300;
-
-console.log('[Init] UI elements:', {
-    canvas: !!canvas,
-    rollBtn: !!rollBtn,
-    statusDiv: !!statusDiv,
-    directionButtonsDiv: !!directionButtonsDiv
-});
 
 function sendAction(type, payload = {}) {
     ws.send(JSON.stringify({ type, payload }));
