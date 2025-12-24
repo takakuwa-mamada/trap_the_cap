@@ -22,10 +22,36 @@ const rollBtn = document.getElementById('rollBtn');
 const statusDiv = document.getElementById('status');
 const directionButtonsDiv = document.getElementById('direction-buttons');
 
-// Settings
-const SCALE = 50;
-const OFFSET_X = 300;
-const OFFSET_Y = 300;
+// Settings - 動的に計算
+let SCALE = 50;
+let OFFSET_X = 300;
+let OFFSET_Y = 300;
+
+// Canvas動的リサイズ関数
+function resizeCanvas() {
+    const container = document.getElementById('game-container');
+    const containerWidth = container.clientWidth - 20; // padding分を引く
+    const size = Math.min(containerWidth, 600); // 最大600px
+    
+    canvas.width = size;
+    canvas.height = size;
+    
+    // スケール調整
+    SCALE = size / 12; // 12は盤面の基準サイズ
+    OFFSET_X = size / 2;
+    OFFSET_Y = size / 2;
+    
+    console.log('[Canvas] Resized:', size, 'SCALE:', SCALE);
+    
+    // 再描画
+    if (gameState) {
+        drawBoard();
+    }
+}
+
+// 初回リサイズ＆リサイズイベント登録
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 console.log('[Init] UI elements:', {
     canvas: !!canvas,
@@ -162,9 +188,31 @@ canvas.onclick = (e) => {
     if (!gameState) return;
     
     const rect = canvas.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clickX = (e.clientX - rect.left) * scaleX;
+    const clickY = (e.clientY - rect.top) * scaleY;
     
+    handleCanvasClick(clickX, clickY);
+};
+
+// タッチイベント対応（スマホ用）
+canvas.ontouchstart = (e) => {
+    e.preventDefault(); // スクロール防止
+    if (!gameState) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const touch = e.touches[0];
+    const clickX = (touch.clientX - rect.left) * scaleX;
+    const clickY = (touch.clientY - rect.top) * scaleY;
+    
+    handleCanvasClick(clickX, clickY);
+};
+
+// クリック/タッチ処理を共通化
+function handleCanvasClick(clickX, clickY) {
     // Check if clicking on a legal destination node
     if (legalDestinations.length > 0 && gameState.board && gameState.board.nodes) {
         const nodes = gameState.board.nodes;
@@ -210,7 +258,7 @@ canvas.onclick = (e) => {
             }
         }
     }
-};
+}
 
 function updateUI() {
     if (!gameState) return;
