@@ -308,7 +308,24 @@ function render() {
     // Draw board structure
     if (!gameState.board || !gameState.board.nodes) return;
     
-    const nodes = gameState.board.nodes;
+    let nodes = gameState.board.nodes;
+    
+    // nodesが配列の場合、オブジェクトに変換
+    if (Array.isArray(nodes)) {
+        const nodesObj = {};
+        nodes.forEach(node => {
+            if (node && node.id) {
+                nodesObj[node.id] = node;
+            }
+        });
+        nodes = nodesObj;
+    }
+    
+    // nodesが空またはundefinedの場合、エラー回避
+    if (!nodes || Object.keys(nodes).length === 0) {
+        console.error('[Render] No valid nodes found');
+        return;
+    }
     
     // Draw edges (paths)
     ctx.strokeStyle = '#000';
