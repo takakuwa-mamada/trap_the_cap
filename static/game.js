@@ -21,6 +21,8 @@ const logDiv = document.getElementById('log');
 const rollBtn = document.getElementById('rollBtn');
 const statusDiv = document.getElementById('status');
 const directionButtonsDiv = document.getElementById('direction-buttons');
+const resetBtn = document.getElementById('resetBtn');
+const resetBtn = document.getElementById('resetBtn');
 
 // Settings - 動的に計算
 let SCALE = 50;
@@ -171,6 +173,13 @@ function sendAction(type, payload = {}) {
 
 rollBtn.onclick = () => {
     sendAction("roll");
+};
+
+resetBtn.onclick = () => {
+    if (confirm('ゲームを最初からやり直しますか?\n全プレイヤーのデータがリセットされます。')) {
+        console.log('Reset button clicked');
+        sendAction("reset", {});
+    }
 };
 
 // Direction button handlers

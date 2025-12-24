@@ -193,6 +193,37 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
                     else:
                         print(f"[Action] No valid destinations")
             
+            elif action.type == "reset":
+                print(f"[Action] Resetting game for room {room_id}")
+                # ゲームを初期状態にリセット
+                state = init_game(room_id, BOARD_COPPIT, GameConfig())
+                
+                # 既存のプレイヤーを再追加
+                player_ids = list(manager.active_connections.get(room_id, []))
+                color_names = {"RED": "赤", "BLUE": "青", "YELLOW": "黄", "GREEN": "緑"}
+                
+                for pid in player_ids:
+                    used_colors = {p.color for p in state.players.values()}
+                    available_colors = [c for c in PlayerColor if c not in used_colors]
+                    if available_colors:
+                        player_color = available_colors[0]
+                        color_name = color_names.get(player_color.value, player_color.value)
+                        state = add_player(state, pid, color_name)
+                
+                # Botを自動追加
+                while len(state.players) < state.config.max_players and state.phase == GamePhase.WAITING:
+                    bot_used_colors = {p.color for p in state.players.values()}
+                    bot_available_colors = [c for c in PlayerColor if c not in bot_used_colors]
+                    if bot_available_colors:
+                        bot_color = bot_available_colors[0]
+                        bot_id = f"bot_{bot_color.value.lower()}"
+                        bot_name = f"Bot{color_names.get(bot_color.value, bot_color.value)}"
+                        state = add_player(state, bot_id, bot_name, is_bot=True)
+                    else:
+                        break
+                
+                print(f"[Action] Game reset complete. Players: {len(state.players)}")
+                
             elif action.type == "select_destination":
                 print(f"[Action] Selecting destination node")
                 destination_node = action.payload.get("node_id")
