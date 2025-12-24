@@ -205,6 +205,13 @@
     </div>
     
     <script>
+        // URLパラメータをチェック - room/playerパラメータがある場合はゲーム画面にリダイレクト
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('room') && urlParams.has('player')) {
+            console.log('[Lobby] Redirecting to game page with existing parameters');
+            window.location.href = '/game.html' + window.location.search;
+        }
+        
         // ルーム名のバリデーション
         function validateRoomName(roomName) {
             if (!roomName || roomName.trim() === '') {
