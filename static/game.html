@@ -27,7 +27,9 @@
             font-size: 24px;
         }
         #game-container { 
-            position: relative;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
             background: rgba(0,0,0,0.3);
             border-radius: 12px;
             padding: 10px;
@@ -142,9 +144,23 @@
             max-width: 600px;
             font-size: 14px;
             line-height: 1.6;
+            width: 100%;
         }
         .info h3 {
-            margin-top: 0;
+            margin: 0 0 10px 0;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .info-content.open {
+            max-height: 500px;
         }
     </style>
 </head>
@@ -167,20 +183,30 @@
     <div id="log"></div>
     <button id="resetBtn" style="margin-top: 10px; background: #dc3545; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; max-width: 600px;">🔄 ゲームをリセット</button>
     <div class="info">
-        <h3>📖 遊び方</h3>
-        <p>
-            <b>目的：</b> 相手の帽子を捕まえて、自分のBOXに持ち帰ろう！<br><br>
-            <b>操作方法：</b><br>
-            ① 自分のターンになったら「サイコロを振る」ボタンをクリック<br>
-            ② 黄色く光っている駒（帽子の山）をクリックして選択<br>
-            ③ 方向選択が必要な場合はボタンで選択<br>
-            ④ 自動的に相手のターンに移ります<br><br>
-            <b>特別ルール：</b><br>
-            • 6を出すとBOXから新しい駒を出せます<br>
-            • 自分の色のマスは安全地帯です<br>
-            • 相手の駒に乗ると捕獲できます！
-        </p>
+        <h3 onclick="toggleInfo()">📖 遊び方 <span id="info-toggle">▼</span></h3>
+        <div class="info-content" id="info-content">
+            <p>
+                <b>目的：</b> 相手の帽子を捕まえて、自分のBOXに持ち帰ろう！<br><br>
+                <b>操作方法：</b><br>
+                ① 自分のターンになったら「サイコロを振る」ボタンをクリック<br>
+                ② 黄色く光っている駒（帽子の山）をクリックして選択<br>
+                ③ 方向選択が必要な場合はボタンで選択<br>
+                ④ 自動的に相手のターンに移ります<br><br>
+                <b>特別ルール：</b><br>
+                • 6を出すとBOXから新しい駒を出せます<br>
+                • 自分の色のマスは安全地帯です<br>
+                • 相手の駒に乗ると捕獲できます！
+            </p>
+        </div>
     </div>
+    <script>
+        function toggleInfo() {
+            const content = document.getElementById('info-content');
+            const toggle = document.getElementById('info-toggle');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+    </script>
     <script src="/static/game.js"></script>
 </body>
 </html>
