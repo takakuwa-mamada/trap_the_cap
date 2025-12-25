@@ -27,15 +27,14 @@
             font-size: 24px;
         }
         #game-container { 
-            position: sticky;
-            top: 10px;
-            z-index: 100;
+            position: relative;
             background: rgba(0,0,0,0.3);
             border-radius: 12px;
             padding: 10px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             width: 100%;
             max-width: 600px;
+            margin: 10px 0;
         }
         canvas { 
             background: #2a2a3e;
@@ -158,9 +157,11 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
+            opacity: 0;
         }
         .info-content.open {
             max-height: 500px;
+            opacity: 1;
         }
     </style>
 </head>

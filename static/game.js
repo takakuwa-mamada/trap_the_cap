@@ -90,7 +90,7 @@ function connectWebSocket() {
     ws.onopen = () => {
         clearTimeout(connectionTimeout);
         isConnected = true;
-        statusDiv.textContent = '接続完了！';
+        statusDiv.textContent = 'サーバーに接続しました - ゲーム待機中...';
         console.log('[WS] WebSocket connected successfully');
     };
     
@@ -108,12 +108,12 @@ function connectWebSocket() {
     
     ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log('[WS] Received:', message.type || 'unknown', message);
+        console.log('[WS] Received:', message.type || 'state update', message.phase || '');
         
         // Direct state broadcast (GameState object) - 最優先で処理
         if (message.board && !message.type) {
             gameState = message;
-            console.log('[WS] Full state update');
+            console.log('[WS] Full state update - Phase:', gameState.phase, 'Players:', Object.keys(gameState.players).length);
             // legalStacksはクリアしない（他のメッセージで管理）
             render();
             updateUI();
