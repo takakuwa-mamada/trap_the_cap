@@ -195,14 +195,17 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
             
             elif action.type == "reset":
                 print(f"[Action] Resetting game for room {room_id}")
+                
+                # 既存のプレイヤーIDを保存
+                existing_player_ids = list(state.players.keys()) if state else []
+                
                 # ゲームを初期状態にリセット
                 state = init_game(room_id, BOARD_COPPIT, GameConfig())
                 
                 # 既存のプレイヤーを再追加
-                player_ids = list(manager.active_connections.get(room_id, []))
                 color_names = {"RED": "赤", "BLUE": "青", "YELLOW": "黄", "GREEN": "緑"}
                 
-                for pid in player_ids:
+                for pid in existing_player_ids:
                     used_colors = {p.color for p in state.players.values()}
                     available_colors = [c for c in PlayerColor if c not in used_colors]
                     if available_colors:
