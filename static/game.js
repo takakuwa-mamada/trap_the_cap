@@ -1,4 +1,4 @@
-// Version: 2.0 - Fixed legal_pieces handling
+// Version: 3.0 - Fixed resetBtn duplicate declaration
 const params = new URLSearchParams(window.location.search);
 const roomId = params.get('room') || 'test_room';
 const playerId = params.get('player') || 'p_' + Math.floor(Math.random() * 1000);
