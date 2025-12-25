@@ -378,8 +378,8 @@ function render() {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Background
-    ctx.fillStyle = '#87CEEB';
+    // Background - bright sky blue like the board image
+    ctx.fillStyle = '#5DB8E5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Draw board structure
@@ -404,9 +404,9 @@ function render() {
         return;
     }
     
-    // Draw edges (paths)
+    // Draw edges (paths) - thick black lines
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     Object.values(nodes).forEach(node => {
         const {x, y} = toScreen(node.x, node.y);
         node.neighbors.forEach(nid => {
@@ -424,54 +424,63 @@ function render() {
     Object.entries(nodes).forEach(([nodeId, node]) => {
         const {x, y} = toScreen(node.x, node.y);
         
-        // Define colors
+        // Define colors - vivid like the board game
         const colorMap = {
-            'RED': '#E74C3C',
-            'BLUE': '#3498DB',
-            'YELLOW': '#F1C40F',
-            'GREEN': '#2ECC71'
+            'RED': '#D32F2F',
+            'BLUE': '#1976D2',
+            'YELLOW': '#FDD835',
+            'GREEN': '#388E3C'
         };
         
         // Node appearance based on tags
         if (node.tags.includes('BOX')) {
-            // BOX - large colored circle
+            // BOX - large colored circle with white glow
+            // White outer glow
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(x, y, 40, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Colored BOX
             ctx.fillStyle = colorMap[node.color] || '#444';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 5;
             ctx.beginPath();
             ctx.arc(x, y, 35, 0, Math.PI*2);
             ctx.fill();
             ctx.stroke();
             
-            // BOX label
+            // BOX label with shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 3;
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('BOX', x, y);
+            ctx.shadowBlur = 0;
         } else if (node.tags.includes('SAFE_COLOR')) {
-            // Colored safe squares
+            // Colored safe squares - vivid colors
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            const size = 20;
+            ctx.lineWidth = 3;
+            const size = 22;
             ctx.fillRect(x - size/2, y - size/2, size, size);
             ctx.strokeRect(x - size/2, y - size/2, size, size);
         } else if (node.tags.includes('CENTER')) {
-            // Center cross - white
-            ctx.fillStyle = '#ECF0F1';
+            // Center cross - beige like normal spaces
+            ctx.fillStyle = '#E8D4B0';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(x, y, 12, 0, Math.PI*2);
-            ctx.fill();
-            ctx.stroke();
+            ctx.lineWidth = 3;
+            const size = 20;
+            ctx.fillRect(x - size/2, y - size/2, size, size);
+            ctx.strokeRect(x - size/2, y - size/2, size, size);
         } else {
-            // Normal spaces - wood color
-            ctx.fillStyle = '#D2B48C';
+            // Normal spaces - beige/wood color rectangular
+            ctx.fillStyle = '#E8D4B0';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            const size = 18;
+            ctx.lineWidth = 3;
+            const size = 20;
             ctx.fillRect(x - size/2, y - size/2, size, size);
             ctx.strokeRect(x - size/2, y - size/2, size, size);
         }
@@ -485,12 +494,12 @@ function render() {
             
             const {x, y} = toScreen(node.x, node.y);
             
-            // Define colors for hats
+            // Define colors for hats - match board colors
             const colorMap = {
-                'RED': '#E74C3C',
-                'BLUE': '#3498DB',
-                'YELLOW': '#F1C40F',
-                'GREEN': '#2ECC71'
+                'RED': '#D32F2F',
+                'BLUE': '#1976D2',
+                'YELLOW': '#FDD835',
+                'GREEN': '#388E3C'
             };
             
             // Draw stack pieces (hats) - 駒を下から順に積み重ねて表示
