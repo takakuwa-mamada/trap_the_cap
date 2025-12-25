@@ -22,7 +22,6 @@ const rollBtn = document.getElementById('rollBtn');
 const statusDiv = document.getElementById('status');
 const directionButtonsDiv = document.getElementById('direction-buttons');
 const resetBtn = document.getElementById('resetBtn');
-const resetBtn = document.getElementById('resetBtn');
 
 // Settings - 動的に計算
 let SCALE = 50;
@@ -47,7 +46,7 @@ function resizeCanvas() {
     
     // 再描画
     if (gameState) {
-        drawBoard();
+        render();
     }
 }
 
