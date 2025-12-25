@@ -227,6 +227,10 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
                 
                 print(f"[Action] Game reset complete. Players: {len(state.players)}")
                 
+                # 状態を保存してブロードキャスト
+                await manager.save_state(state)
+                await manager.broadcast(room_id, state)
+                
             elif action.type == "select_destination":
                 print(f"[Action] Selecting destination node")
                 destination_node = action.payload.get("node_id")
