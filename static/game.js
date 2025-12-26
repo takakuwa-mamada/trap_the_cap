@@ -498,23 +498,41 @@ function render() {
     }
     
     // === STEP 5: Draw division lines on cross paths ===
-    // North-South cross
-    for (let i = -2; i <= 2; i++) {
-        if (i === 0) continue;  // Skip center
-        const y = centerY + i * (innerRadius / 3);
+    const crossDivLineLength = crossWidth / 2 + 5;
+    
+    // North cross (vertical)
+    for (let i = 1; i <= 2; i++) {
+        const y = centerY - i * (innerRadius / 3);
         ctx.beginPath();
-        ctx.moveTo(centerX - crossWidth/2, y);
-        ctx.lineTo(centerX + crossWidth/2, y);
+        ctx.moveTo(centerX - crossDivLineLength, y);
+        ctx.lineTo(centerX + crossDivLineLength, y);
         ctx.stroke();
     }
     
-    // East-West cross
-    for (let i = -2; i <= 2; i++) {
-        if (i === 0) continue;  // Skip center
+    // South cross (vertical)
+    for (let i = 1; i <= 2; i++) {
+        const y = centerY + i * (innerRadius / 3);
+        ctx.beginPath();
+        ctx.moveTo(centerX - crossDivLineLength, y);
+        ctx.lineTo(centerX + crossDivLineLength, y);
+        ctx.stroke();
+    }
+    
+    // East cross (horizontal)
+    for (let i = 1; i <= 2; i++) {
         const x = centerX + i * (innerRadius / 3);
         ctx.beginPath();
-        ctx.moveTo(x, centerY - crossWidth/2);
-        ctx.lineTo(x, centerY + crossWidth/2);
+        ctx.moveTo(x, centerY - crossDivLineLength);
+        ctx.lineTo(x, centerY + crossDivLineLength);
+        ctx.stroke();
+    }
+    
+    // West cross (horizontal)
+    for (let i = 1; i <= 2; i++) {
+        const x = centerX - i * (innerRadius / 3);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - crossDivLineLength);
+        ctx.lineTo(x, centerY + crossDivLineLength);
         ctx.stroke();
     }
     
@@ -526,22 +544,25 @@ function render() {
         'GREEN': '#388E3C'
     };
     
-    // === STEP 6: Draw color squares on paths ===
+    // === STEP 6: Draw all nodes (except BOX and CENTER) ===
     Object.entries(nodes).forEach(([nodeId, node]) => {
         if (!node.tags) return;
-        if (node.tags.includes('BOX')) return;  // Skip BOX for now
+        if (node.tags.includes('BOX')) return;  // Skip BOX (drawn later)
+        if (node.tags.includes('CENTER')) return;  // Skip center point
+        
+        const {x, y} = toScreen(node.x, node.y);
         
         if (node.tags.includes('SAFE_COLOR')) {
-            const {x, y} = toScreen(node.x, node.y);
-            
+            // Colored squares
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            const size = 24;
+            ctx.lineWidth = 2.5;
+            const size = 22;
             
             ctx.fillRect(x - size/2, y - size/2, size, size);
             ctx.strokeRect(x - size/2, y - size/2, size, size);
         }
+        // Note: Regular nodes are represented by the division lines, not drawn as separate squares
     });
     
     // === STEP 7: Draw BOX circles with arrows ===
