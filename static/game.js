@@ -381,6 +381,16 @@ function render() {
     ctx.fillStyle = '#5DB8E5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    // Draw central blue area (large circle in the middle)
+    const centerX = OFFSET_X;
+    const centerY = OFFSET_Y;
+    const centralRadius = SCALE * 2.5; // 中央の青い円
+    
+    ctx.fillStyle = '#5DB8E5';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, centralRadius, 0, Math.PI * 2);
+    ctx.fill();
+    
     // Draw board structure
     if (!gameState.board || !gameState.board.nodes) return;
     
@@ -433,11 +443,11 @@ function render() {
         
         // Node appearance based on tags
         if (node.tags.includes('BOX')) {
-            // BOX - large colored circle with white glow
+            // BOX - large colored circle with white glow and arrow
             // White outer glow
             ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(x, y, 40, 0, Math.PI*2);
+            ctx.arc(x, y, 42, 0, Math.PI*2);
             ctx.fill();
             
             // Colored BOX
@@ -445,7 +455,7 @@ function render() {
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 5;
             ctx.beginPath();
-            ctx.arc(x, y, 35, 0, Math.PI*2);
+            ctx.arc(x, y, 36, 0, Math.PI*2);
             ctx.fill();
             ctx.stroke();
             
@@ -453,35 +463,65 @@ function render() {
             ctx.shadowColor = 'rgba(0,0,0,0.5)';
             ctx.shadowBlur = 3;
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Arial';
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('BOX', x, y);
             ctx.shadowBlur = 0;
+            
+            // Draw arrow pointing toward center
+            ctx.strokeStyle = '#000';
+            ctx.fillStyle = '#000';
+            ctx.lineWidth = 3;
+            const arrowAngle = Math.atan2(centerY - y, centerX - x);
+            const arrowDist = 50;
+            const arrowX = x + Math.cos(arrowAngle) * arrowDist;
+            const arrowY = y + Math.sin(arrowAngle) * arrowDist;
+            
+            // Arrow line
+            ctx.beginPath();
+            ctx.moveTo(x + Math.cos(arrowAngle) * 38, y + Math.sin(arrowAngle) * 38);
+            ctx.lineTo(arrowX, arrowY);
+            ctx.stroke();
+            
+            // Arrow head
+            const headLen = 10;
+            ctx.beginPath();
+            ctx.moveTo(arrowX, arrowY);
+            ctx.lineTo(arrowX - headLen * Math.cos(arrowAngle - Math.PI/6), 
+                      arrowY - headLen * Math.sin(arrowAngle - Math.PI/6));
+            ctx.lineTo(arrowX - headLen * Math.cos(arrowAngle + Math.PI/6), 
+                      arrowY - headLen * Math.sin(arrowAngle + Math.PI/6));
+            ctx.closePath();
+            ctx.fill();
+            
         } else if (node.tags.includes('SAFE_COLOR')) {
-            // Colored safe squares - vivid colors
+            // Colored safe squares - vivid colors, wider rectangles
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
-            const size = 22;
-            ctx.fillRect(x - size/2, y - size/2, size, size);
-            ctx.strokeRect(x - size/2, y - size/2, size, size);
+            const width = 28;
+            const height = 22;
+            ctx.fillRect(x - width/2, y - height/2, width, height);
+            ctx.strokeRect(x - width/2, y - height/2, width, height);
         } else if (node.tags.includes('CENTER')) {
-            // Center cross - beige like normal spaces
+            // Center cross - beige like normal spaces, slightly wider
             ctx.fillStyle = '#E8D4B0';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
-            const size = 20;
-            ctx.fillRect(x - size/2, y - size/2, size, size);
-            ctx.strokeRect(x - size/2, y - size/2, size, size);
+            const width = 26;
+            const height = 20;
+            ctx.fillRect(x - width/2, y - height/2, width, height);
+            ctx.strokeRect(x - width/2, y - height/2, width, height);
         } else {
-            // Normal spaces - beige/wood color rectangular
+            // Normal spaces - beige/wood color, wider rectangles
             ctx.fillStyle = '#E8D4B0';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
-            const size = 20;
-            ctx.fillRect(x - size/2, y - size/2, size, size);
-            ctx.strokeRect(x - size/2, y - size/2, size, size);
+            const width = 26;
+            const height = 20;
+            ctx.fillRect(x - width/2, y - height/2, width, height);
+            ctx.strokeRect(x - width/2, y - height/2, width, height);
         }
     });
     
