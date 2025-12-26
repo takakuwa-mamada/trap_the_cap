@@ -142,6 +142,46 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
             if not state:
                 continue
             
+            # リセットは誰でも実行可能
+            if action.type == "reset":
+                print(f"[Action] Resetting game for room {room_id} by {player_id}")
+                
+                # 既存のプレイヤーIDを保存
+                existing_player_ids = list(state.players.keys()) if state else []
+                
+                # ゲームを初期状態にリセット
+                state = init_game(room_id, BOARD_COPPIT, GameConfig())
+                
+                # 既存のプレイヤーを再追加
+                color_names = {"RED": "赤", "BLUE": "青", "YELLOW": "黄", "GREEN": "緑"}
+                
+                for pid in existing_player_ids:
+                    used_colors = {p.color for p in state.players.values()}
+                    available_colors = [c for c in PlayerColor if c not in used_colors]
+                    if available_colors:
+                        player_color = available_colors[0]
+                        color_name = color_names.get(player_color.value, player_color.value)
+                        state = add_player(state, pid, color_name)
+                
+                # Botを自動追加
+                while len(state.players) < state.config.max_players and state.phase == GamePhase.WAITING:
+                    bot_used_colors = {p.color for p in state.players.values()}
+                    bot_available_colors = [c for c in PlayerColor if c not in bot_used_colors]
+                    if bot_available_colors:
+                        bot_color = bot_available_colors[0]
+                        bot_id = f"bot_{bot_color.value.lower()}"
+                        bot_name = f"Bot{color_names.get(bot_color.value, bot_color.value)}"
+                        state = add_player(state, bot_id, bot_name, is_bot=True)
+                    else:
+                        break
+                
+                print(f"[Action] Game reset complete. Players: {len(state.players)}")
+                
+                # 状態を保存してブロードキャスト
+                await manager.save_state(state)
+                await manager.broadcast(room_id, state)
+                continue
+            
             # 手番プレイヤーチェック
             if state.current_player_id != player_id:
                 print(f"[Action] Not player's turn: current={state.current_player_id}, requesting={player_id}")
@@ -301,7 +341,10 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str, player_id: str)
             
             await manager.save_state(state)
             await manager.broadcast(room_id, state)
-            await manager.broadcast(room_id, state)
                 
     except WebSocketDisconnect:
+        manager.disconnect(websocket, room_id)
+        print(f"[WebSocket] Player {player_id} disconnected from room {room_id}")
+    except Exception as e:
+        print(f"[WebSocket] Error for player {player_id} in room {room_id}: {e}")
         manager.disconnect(websocket, room_id)
