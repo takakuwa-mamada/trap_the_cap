@@ -1,4 +1,4 @@
-// Version: 3.0 - Fixed resetBtn duplicate declaration
+// Version: 2.0 - Fixed legal_pieces handling
 const params = new URLSearchParams(window.location.search);
 const roomId = params.get('room') || 'test_room';
 const playerId = params.get('player') || 'p_' + Math.floor(Math.random() * 1000);
@@ -21,6 +21,7 @@ const logDiv = document.getElementById('log');
 const rollBtn = document.getElementById('rollBtn');
 const statusDiv = document.getElementById('status');
 const directionButtonsDiv = document.getElementById('direction-buttons');
+const resetBtn = document.getElementById('resetBtn');
 const resetBtn = document.getElementById('resetBtn');
 
 // Settings - 動的に計算
@@ -46,7 +47,7 @@ function resizeCanvas() {
     
     // 再描画
     if (gameState) {
-        render();
+        drawBoard();
     }
 }
 
@@ -89,7 +90,7 @@ function connectWebSocket() {
     ws.onopen = () => {
         clearTimeout(connectionTimeout);
         isConnected = true;
-        statusDiv.textContent = 'サーバーに接続しました - ゲーム待機中...';
+        statusDiv.textContent = '接続完了！';
         console.log('[WS] WebSocket connected successfully');
     };
     
@@ -107,12 +108,12 @@ function connectWebSocket() {
     
     ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log('[WS] Received:', message.type || 'state update', message.phase || '');
+        console.log('[WS] Received:', message.type || 'unknown', message);
         
         // Direct state broadcast (GameState object) - 最優先で処理
         if (message.board && !message.type) {
             gameState = message;
-            console.log('[WS] Full state update - Phase:', gameState.phase, 'Players:', Object.keys(gameState.players).length);
+            console.log('[WS] Full state update');
             // legalStacksはクリアしない（他のメッセージで管理）
             render();
             updateUI();
@@ -377,8 +378,8 @@ function render() {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Background - bright sky blue
-    ctx.fillStyle = '#5DB8E5';
+    // Background
+    ctx.fillStyle = '#87CEEB';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Draw board structure
@@ -397,234 +398,83 @@ function render() {
         nodes = nodesObj;
     }
     
+    // nodesが空またはundefinedの場合、エラー回避
     if (!nodes || Object.keys(nodes).length === 0) {
         console.error('[Render] No valid nodes found');
         return;
     }
     
-    const centerX = OFFSET_X;
-    const centerY = OFFSET_Y;
-    
-    // === STEP 1: Draw outer ring (thick beige band) ===
-    const ringRadius = 3.0 * SCALE;  // Radius to center of ring
-    const ringWidth = 0.6 * SCALE;   // Thickness of ring band
-    
-    ctx.fillStyle = '#D4A574';  // Beige
+    // Draw edges (paths)
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 5;
-    
-    // Outer circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, ringRadius + ringWidth/2, 0, Math.PI * 2);
-    ctx.stroke();
-    
-    // Inner circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, ringRadius - ringWidth/2, 0, Math.PI * 2);
-    ctx.stroke();
-    
-    // Fill ring area
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, ringRadius + ringWidth/2, 0, Math.PI * 2);
-    ctx.arc(centerX, centerY, ringRadius - ringWidth/2, 0, Math.PI * 2, true);
-    ctx.fill();
-    
-    // === STEP 2: Draw X-cross paths (4 beige bands) ===
-    const crossPaths = [
-        { startAngle: -Math.PI/4, endAngle: Math.PI/4 },       // East
-        { startAngle: Math.PI/4, endAngle: 3*Math.PI/4 },      // South
-        { startAngle: 3*Math.PI/4, endAngle: 5*Math.PI/4 },    // West
-        { startAngle: 5*Math.PI/4, endAngle: 7*Math.PI/4 }     // North
-    ];
-    
-    const crossWidth = 0.6 * SCALE;  // Width of cross paths
-    const innerRadius = ringRadius - ringWidth/2;
-    
-    crossPaths.forEach((path, idx) => {
-        const midAngle = (path.startAngle + path.endAngle) / 2;
-        const cos = Math.cos(midAngle);
-        const sin = Math.sin(midAngle);
-        const perpCos = Math.cos(midAngle + Math.PI/2);
-        const perpSin = Math.sin(midAngle + Math.PI/2);
-        
-        // Draw beige band from center to inner ring
-        ctx.fillStyle = '#D4A574';
-        ctx.beginPath();
-        ctx.moveTo(centerX + perpCos * crossWidth/2, centerY + perpSin * crossWidth/2);
-        ctx.lineTo(centerX + cos * innerRadius + perpCos * crossWidth/2, 
-                   centerY + sin * innerRadius + perpSin * crossWidth/2);
-        ctx.lineTo(centerX + cos * innerRadius - perpCos * crossWidth/2,
-                   centerY + sin * innerRadius - perpSin * crossWidth/2);
-        ctx.lineTo(centerX - perpCos * crossWidth/2, centerY - perpSin * crossWidth/2);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Draw black outline edges
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(centerX + perpCos * crossWidth/2, centerY + perpSin * crossWidth/2);
-        ctx.lineTo(centerX + cos * innerRadius + perpCos * crossWidth/2,
-                   centerY + sin * innerRadius + perpSin * crossWidth/2);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(centerX - perpCos * crossWidth/2, centerY - perpSin * crossWidth/2);
-        ctx.lineTo(centerX + cos * innerRadius - perpCos * crossWidth/2,
-                   centerY + sin * innerRadius - perpSin * crossWidth/2);
-        ctx.stroke();
+    ctx.lineWidth = 3;
+    Object.values(nodes).forEach(node => {
+        const {x, y} = toScreen(node.x, node.y);
+        node.neighbors.forEach(nid => {
+            const neighbor = nodes[nid];
+            if (!neighbor) return;
+            const {x: nx, y: ny} = toScreen(neighbor.x, neighbor.y);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(nx, ny);
+            ctx.stroke();
+        });
     });
     
-    // === STEP 3: Draw central blue circle ===
-    ctx.fillStyle = '#5DB8E5';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 0.8 * SCALE, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // === STEP 4: Draw division lines on outer ring (48 spaces) ===
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 48; i++) {
-        const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;
-        const x1 = centerX + Math.cos(angle) * (ringRadius - ringWidth/2);
-        const y1 = centerY + Math.sin(angle) * (ringRadius - ringWidth/2);
-        const x2 = centerX + Math.cos(angle) * (ringRadius + ringWidth/2);
-        const y2 = centerY + Math.sin(angle) * (ringRadius + ringWidth/2);
-        
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
-    
-    // === STEP 5: Draw division lines on X-cross paths ===
-    const crossDivLength = crossWidth / 2 + 3;
-    
-    // Vertical lines on North-South cross
-    for (let i = 1; i <= 2; i++) {
-        const y = centerY - i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(centerX - crossDivLength, y);
-        ctx.lineTo(centerX + crossDivLength, y);
-        ctx.stroke();
-    }
-    for (let i = 1; i <= 2; i++) {
-        const y = centerY + i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(centerX - crossDivLength, y);
-        ctx.lineTo(centerX + crossDivLength, y);
-        ctx.stroke();
-    }
-    
-    // Horizontal lines on East-West cross
-    for (let i = 1; i <= 2; i++) {
-        const x = centerX + i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(x, centerY - crossDivLength);
-        ctx.lineTo(x, centerY + crossDivLength);
-        ctx.stroke();
-    }
-    for (let i = 1; i <= 2; i++) {
-        const x = centerX - i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(x, centerY - crossDivLength);
-        ctx.lineTo(x, centerY + crossDivLength);
-        ctx.stroke();
-    }
-    
-    // Define colors
-    const colorMap = {
-        'RED': '#D32F2F',
-        'BLUE': '#1976D2',
-        'YELLOW': '#FDD835',
-        'GREEN': '#388E3C'
-    };
-    
-    // === STEP 6: Draw colored squares ===
+    // Draw nodes (spaces)
     Object.entries(nodes).forEach(([nodeId, node]) => {
-        if (!node.tags) return;
-        if (node.tags.includes('BOX')) return;
-        if (node.tags.includes('CENTER')) return;
+        const {x, y} = toScreen(node.x, node.y);
         
-        if (node.tags.includes('SAFE_COLOR')) {
-            const {x, y} = toScreen(node.x, node.y);
+        // Define colors
+        const colorMap = {
+            'RED': '#E74C3C',
+            'BLUE': '#3498DB',
+            'YELLOW': '#F1C40F',
+            'GREEN': '#2ECC71'
+        };
+        
+        // Node appearance based on tags
+        if (node.tags.includes('BOX')) {
+            // BOX - large colored circle
+            ctx.fillStyle = colorMap[node.color] || '#444';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(x, y, 35, 0, Math.PI*2);
+            ctx.fill();
+            ctx.stroke();
             
+            // BOX label
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('BOX', x, y);
+        } else if (node.tags.includes('SAFE_COLOR')) {
+            // Colored safe squares
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2.5;
+            ctx.lineWidth = 2;
             const size = 20;
-            
+            ctx.fillRect(x - size/2, y - size/2, size, size);
+            ctx.strokeRect(x - size/2, y - size/2, size, size);
+        } else if (node.tags.includes('CENTER')) {
+            // Center cross - white
+            ctx.fillStyle = '#ECF0F1';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI*2);
+            ctx.fill();
+            ctx.stroke();
+        } else {
+            // Normal spaces - wood color
+            ctx.fillStyle = '#D2B48C';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            const size = 18;
             ctx.fillRect(x - size/2, y - size/2, size, size);
             ctx.strokeRect(x - size/2, y - size/2, size, size);
         }
-    });
-    
-    // === STEP 7: Draw BOX circles with arrows ===
-    Object.entries(nodes).forEach(([nodeId, node]) => {
-        if (!node.tags || !node.tags.includes('BOX')) return;
-        
-        const {x, y} = toScreen(node.x, node.y);
-        
-        ctx.save();
-        
-        // White outer glow
-        ctx.fillStyle = '#fff';
-        ctx.shadowColor = 'rgba(255,255,255,0.9)';
-        ctx.shadowBlur = 20;
-        ctx.beginPath();
-        ctx.arc(x, y, 48, 0, Math.PI*2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        
-        // Colored BOX
-        ctx.fillStyle = colorMap[node.color] || '#444';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.arc(x, y, 40, 0, Math.PI*2);
-        ctx.fill();
-        ctx.stroke();
-        
-        // BOX label
-        ctx.fillStyle = '#fff';
-        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-        ctx.lineWidth = 3;
-        ctx.font = 'bold 20px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.strokeText('BOX', x, y);
-        ctx.fillText('BOX', x, y);
-        
-        ctx.restore();
-        
-        // Arrow toward center
-        ctx.save();
-        ctx.strokeStyle = '#000';
-        ctx.fillStyle = '#000';
-        ctx.lineWidth = 5;
-        const arrowAngle = Math.atan2(centerY - y, centerX - x);
-        const arrowStartDist = 45;
-        const arrowEndDist = 70;
-        const arrowStartX = x + Math.cos(arrowAngle) * arrowStartDist;
-        const arrowStartY = y + Math.sin(arrowAngle) * arrowStartDist;
-        const arrowEndX = x + Math.cos(arrowAngle) * arrowEndDist;
-        const arrowEndY = y + Math.sin(arrowAngle) * arrowEndDist;
-        
-        ctx.beginPath();
-        ctx.moveTo(arrowStartX, arrowStartY);
-        ctx.lineTo(arrowEndX, arrowEndY);
-        ctx.stroke();
-        
-        const headLen = 14;
-        ctx.beginPath();
-        ctx.moveTo(arrowEndX, arrowEndY);
-        ctx.lineTo(arrowEndX - headLen * Math.cos(arrowAngle - Math.PI/6),
-                  arrowEndY - headLen * Math.sin(arrowAngle - Math.PI/6));
-        ctx.lineTo(arrowEndX - headLen * Math.cos(arrowAngle + Math.PI/6),
-                  arrowEndY - headLen * Math.sin(arrowAngle + Math.PI/6));
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
     });
     
     // Draw stacks (hats on board)
@@ -635,12 +485,12 @@ function render() {
             
             const {x, y} = toScreen(node.x, node.y);
             
-            // Define colors for hats - match board colors
+            // Define colors for hats
             const colorMap = {
-                'RED': '#D32F2F',
-                'BLUE': '#1976D2',
-                'YELLOW': '#FDD835',
-                'GREEN': '#388E3C'
+                'RED': '#E74C3C',
+                'BLUE': '#3498DB',
+                'YELLOW': '#F1C40F',
+                'GREEN': '#2ECC71'
             };
             
             // Draw stack pieces (hats) - 駒を下から順に積み重ねて表示
