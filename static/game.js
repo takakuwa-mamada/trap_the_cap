@@ -544,25 +544,30 @@ function render() {
         'GREEN': '#388E3C'
     };
     
-    // === STEP 6: Draw all nodes (except BOX and CENTER) ===
+    // === STEP 6: Draw small dots at each node position (for debugging alignment) ===
     Object.entries(nodes).forEach(([nodeId, node]) => {
         if (!node.tags) return;
-        if (node.tags.includes('BOX')) return;  // Skip BOX (drawn later)
-        if (node.tags.includes('CENTER')) return;  // Skip center point
+        if (node.tags.includes('BOX')) return;  // Skip BOX
+        if (node.tags.includes('CENTER')) return;  // Skip center
         
         const {x, y} = toScreen(node.x, node.y);
         
         if (node.tags.includes('SAFE_COLOR')) {
-            // Colored squares
+            // Colored squares - exact node position
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 2.5;
-            const size = 22;
+            const size = 20;
             
             ctx.fillRect(x - size/2, y - size/2, size, size);
             ctx.strokeRect(x - size/2, y - size/2, size, size);
+        } else {
+            // Draw small circle at node position to show exact location
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
         }
-        // Note: Regular nodes are represented by the division lines, not drawn as separate squares
     });
     
     // === STEP 7: Draw BOX circles with arrows ===
