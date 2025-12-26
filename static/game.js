@@ -405,70 +405,41 @@ function render() {
     const centerX = OFFSET_X;
     const centerY = OFFSET_Y;
     
-    // Draw large central blue circle
-    const centralRadius = SCALE * 2.8;
-    ctx.fillStyle = '#5DB8E5';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, centralRadius, 0, Math.PI * 2);
-    ctx.fill();
+    // Draw paths between nodes first (background layer)
+    ctx.strokeStyle = '#8B7355';
+    ctx.lineWidth = 16;
+    ctx.lineCap = 'round';
+    Object.values(nodes).forEach(node => {
+        if (node.tags && node.tags.includes('BOX')) return; // Skip BOX connections
+        const {x, y} = toScreen(node.x, node.y);
+        node.neighbors.forEach(nid => {
+            const neighbor = nodes[nid];
+            if (!neighbor) return;
+            if (neighbor.tags && neighbor.tags.includes('BOX')) return; // Skip BOX connections
+            const {x: nx, y: ny} = toScreen(neighbor.x, neighbor.y);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(nx, ny);
+            ctx.stroke();
+        });
+    });
     
-    // Draw outer ring path (thick beige band)
-    const outerRadius = SCALE * 4.5;
-    const innerRadius = SCALE * 3.8;
-    ctx.fillStyle = '#D4A574';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
-    ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2, true);
-    ctx.fill();
-    
-    // Draw outer ring outline
+    // Draw thinner black lines on top
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
-    ctx.stroke();
-    
-    // Draw 4 cross paths (beige bands from center to outer ring)
-    const crossPaths = [
-        { angle: Math.PI / 4, width: SCALE * 0.8 },      // 右上
-        { angle: 3 * Math.PI / 4, width: SCALE * 0.8 },  // 左上
-        { angle: 5 * Math.PI / 4, width: SCALE * 0.8 },  // 左下
-        { angle: 7 * Math.PI / 4, width: SCALE * 0.8 }   // 右下
-    ];
-    
-    crossPaths.forEach(path => {
-        const cos = Math.cos(path.angle);
-        const sin = Math.sin(path.angle);
-        const perpCos = Math.cos(path.angle + Math.PI / 2);
-        const perpSin = Math.sin(path.angle + Math.PI / 2);
-        
-        ctx.fillStyle = '#D4A574';
-        ctx.beginPath();
-        ctx.moveTo(centerX + perpCos * path.width, centerY + perpSin * path.width);
-        ctx.lineTo(centerX + cos * innerRadius + perpCos * path.width, 
-                   centerY + sin * innerRadius + perpSin * path.width);
-        ctx.lineTo(centerX + cos * innerRadius - perpCos * path.width,
-                   centerY + sin * innerRadius - perpSin * path.width);
-        ctx.lineTo(centerX - perpCos * path.width, centerY - perpSin * path.width);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Outline
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(centerX + perpCos * path.width, centerY + perpSin * path.width);
-        ctx.lineTo(centerX + cos * innerRadius + perpCos * path.width,
-                   centerY + sin * innerRadius + perpSin * path.width);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX - perpCos * path.width, centerY - perpSin * path.width);
-        ctx.lineTo(centerX + cos * innerRadius - perpCos * path.width,
-                   centerY + sin * innerRadius - perpSin * path.width);
-        ctx.stroke();
+    ctx.lineWidth = 3;
+    Object.values(nodes).forEach(node => {
+        if (node.tags && node.tags.includes('BOX')) return;
+        const {x, y} = toScreen(node.x, node.y);
+        node.neighbors.forEach(nid => {
+            const neighbor = nodes[nid];
+            if (!neighbor) return;
+            if (neighbor.tags && neighbor.tags.includes('BOX')) return;
+            const {x: nx, y: ny} = toScreen(neighbor.x, neighbor.y);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(nx, ny);
+            ctx.stroke();
+        });
     });
     
     // Define colors
@@ -483,13 +454,20 @@ function render() {
     Object.entries(nodes).forEach(([nodeId, node]) => {
         const {x, y} = toScreen(node.x, node.y);
         
-        if (node.tags.includes('BOX')) {
+        if (node.tags && node.tags.includes('BOX')) {
             // BOX - large colored circle outside the ring
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(x, y, 45, 0, Math.PI*2);
-            ctx.fill();
+            ctx.save();
             
+            // White outer glow
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(255,255,255,0.8)';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(x, y, 44, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Colored BOX
             ctx.fillStyle = colorMap[node.color] || '#444';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 6;
@@ -498,22 +476,26 @@ function render() {
             ctx.fill();
             ctx.stroke();
             
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 3;
+            // BOX label
             ctx.fillStyle = '#fff';
+            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+            ctx.lineWidth = 3;
             ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+            ctx.strokeText('BOX', x, y);
             ctx.fillText('BOX', x, y);
-            ctx.shadowBlur = 0;
+            
+            ctx.restore();
             
             // Arrow toward center
+            ctx.save();
             ctx.strokeStyle = '#000';
             ctx.fillStyle = '#000';
             ctx.lineWidth = 4;
             const arrowAngle = Math.atan2(centerY - y, centerX - x);
-            const arrowStartDist = 40;
-            const arrowEndDist = 60;
+            const arrowStartDist = 42;
+            const arrowEndDist = 62;
             const arrowStartX = x + Math.cos(arrowAngle) * arrowStartDist;
             const arrowStartY = y + Math.sin(arrowAngle) * arrowStartDist;
             const arrowEndX = x + Math.cos(arrowAngle) * arrowEndDist;
@@ -533,43 +515,41 @@ function render() {
                       arrowEndY - headLen * Math.sin(arrowAngle + Math.PI/6));
             ctx.closePath();
             ctx.fill();
+            ctx.restore();
             
-        } else if (node.tags.includes('SAFE_COLOR')) {
+        } else if (node.tags && node.tags.includes('SAFE_COLOR')) {
             // Colored squares on the paths
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
-            const width = 32;
+            const width = 30;
             const height = 24;
-            ctx.fillRect(x - width/2, y - height/2, width, height);
-            ctx.strokeRect(x - width/2, y - height/2, width, height);
-        } else if (!node.tags.includes('BOX')) {
-            // Regular spaces (beige rectangles)
+            
+            ctx.save();
+            ctx.translate(x, y);
+            const angle = Math.atan2(y - centerY, x - centerX);
+            ctx.rotate(angle);
+            ctx.fillRect(-width/2, -height/2, width, height);
+            ctx.strokeRect(-width/2, -height/2, width, height);
+            ctx.restore();
+            
+        } else if (!node.tags || !node.tags.includes('BOX')) {
+            // Regular spaces (beige rectangles oriented along the path)
             ctx.fillStyle = '#E8D4B0';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 2.5;
-            const width = 30;
-            const height = 22;
-            ctx.fillRect(x - width/2, y - height/2, width, height);
-            ctx.strokeRect(x - width/2, y - height/2, width, height);
+            const width = 28;
+            const height = 20;
+            
+            ctx.save();
+            ctx.translate(x, y);
+            const angle = Math.atan2(y - centerY, x - centerX);
+            ctx.rotate(angle);
+            ctx.fillRect(-width/2, -height/2, width, height);
+            ctx.strokeRect(-width/2, -height/2, width, height);
+            ctx.restore();
         }
     });
-    
-    // Draw radial division lines on outer ring (48 spaces)
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 48; i++) {
-        const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;
-        const x1 = centerX + Math.cos(angle) * innerRadius;
-        const y1 = centerY + Math.sin(angle) * innerRadius;
-        const x2 = centerX + Math.cos(angle) * outerRadius;
-        const y2 = centerY + Math.sin(angle) * outerRadius;
-        
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
     
     // Draw stacks (hats on board)
     if (gameState.stacks) {
