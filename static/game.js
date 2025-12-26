@@ -377,19 +377,9 @@ function render() {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Background - bright sky blue like the board image
+    // Background - bright sky blue
     ctx.fillStyle = '#5DB8E5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw central blue area (large circle in the middle)
-    const centerX = OFFSET_X;
-    const centerY = OFFSET_Y;
-    const centralRadius = SCALE * 2.5; // 中央の青い円
-    
-    ctx.fillStyle = '#5DB8E5';
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, centralRadius, 0, Math.PI * 2);
-    ctx.fill();
     
     // Draw board structure
     if (!gameState.board || !gameState.board.nodes) return;
@@ -407,123 +397,179 @@ function render() {
         nodes = nodesObj;
     }
     
-    // nodesが空またはundefinedの場合、エラー回避
     if (!nodes || Object.keys(nodes).length === 0) {
         console.error('[Render] No valid nodes found');
         return;
     }
     
-    // Draw edges (paths) - thick black lines
+    const centerX = OFFSET_X;
+    const centerY = OFFSET_Y;
+    
+    // Draw large central blue circle
+    const centralRadius = SCALE * 2.8;
+    ctx.fillStyle = '#5DB8E5';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, centralRadius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw outer ring path (thick beige band)
+    const outerRadius = SCALE * 4.5;
+    const innerRadius = SCALE * 3.8;
+    ctx.fillStyle = '#D4A574';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2, true);
+    ctx.fill();
+    
+    // Draw outer ring outline
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 4;
-    Object.values(nodes).forEach(node => {
-        const {x, y} = toScreen(node.x, node.y);
-        node.neighbors.forEach(nid => {
-            const neighbor = nodes[nid];
-            if (!neighbor) return;
-            const {x: nx, y: ny} = toScreen(neighbor.x, neighbor.y);
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(nx, ny);
-            ctx.stroke();
-        });
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Draw 4 cross paths (beige bands from center to outer ring)
+    const crossPaths = [
+        { angle: Math.PI / 4, width: SCALE * 0.8 },      // 右上
+        { angle: 3 * Math.PI / 4, width: SCALE * 0.8 },  // 左上
+        { angle: 5 * Math.PI / 4, width: SCALE * 0.8 },  // 左下
+        { angle: 7 * Math.PI / 4, width: SCALE * 0.8 }   // 右下
+    ];
+    
+    crossPaths.forEach(path => {
+        const cos = Math.cos(path.angle);
+        const sin = Math.sin(path.angle);
+        const perpCos = Math.cos(path.angle + Math.PI / 2);
+        const perpSin = Math.sin(path.angle + Math.PI / 2);
+        
+        ctx.fillStyle = '#D4A574';
+        ctx.beginPath();
+        ctx.moveTo(centerX + perpCos * path.width, centerY + perpSin * path.width);
+        ctx.lineTo(centerX + cos * innerRadius + perpCos * path.width, 
+                   centerY + sin * innerRadius + perpSin * path.width);
+        ctx.lineTo(centerX + cos * innerRadius - perpCos * path.width,
+                   centerY + sin * innerRadius - perpSin * path.width);
+        ctx.lineTo(centerX - perpCos * path.width, centerY - perpSin * path.width);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Outline
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(centerX + perpCos * path.width, centerY + perpSin * path.width);
+        ctx.lineTo(centerX + cos * innerRadius + perpCos * path.width,
+                   centerY + sin * innerRadius + perpSin * path.width);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX - perpCos * path.width, centerY - perpSin * path.width);
+        ctx.lineTo(centerX + cos * innerRadius - perpCos * path.width,
+                   centerY + sin * innerRadius - perpSin * path.width);
+        ctx.stroke();
     });
     
-    // Draw nodes (spaces)
+    // Define colors
+    const colorMap = {
+        'RED': '#D32F2F',
+        'BLUE': '#1976D2',
+        'YELLOW': '#FDD835',
+        'GREEN': '#388E3C'
+    };
+    
+    // Draw nodes (spaces on the paths)
     Object.entries(nodes).forEach(([nodeId, node]) => {
         const {x, y} = toScreen(node.x, node.y);
         
-        // Define colors - vivid like the board game
-        const colorMap = {
-            'RED': '#D32F2F',
-            'BLUE': '#1976D2',
-            'YELLOW': '#FDD835',
-            'GREEN': '#388E3C'
-        };
-        
-        // Node appearance based on tags
         if (node.tags.includes('BOX')) {
-            // BOX - large colored circle with white glow and arrow
-            // White outer glow
+            // BOX - large colored circle outside the ring
             ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(x, y, 42, 0, Math.PI*2);
+            ctx.arc(x, y, 45, 0, Math.PI*2);
             ctx.fill();
             
-            // Colored BOX
             ctx.fillStyle = colorMap[node.color] || '#444';
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 6;
             ctx.beginPath();
-            ctx.arc(x, y, 36, 0, Math.PI*2);
+            ctx.arc(x, y, 38, 0, Math.PI*2);
             ctx.fill();
             ctx.stroke();
             
-            // BOX label with shadow
             ctx.shadowColor = 'rgba(0,0,0,0.5)';
             ctx.shadowBlur = 3;
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 14px Arial';
+            ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('BOX', x, y);
             ctx.shadowBlur = 0;
             
-            // Draw arrow pointing toward center
+            // Arrow toward center
             ctx.strokeStyle = '#000';
             ctx.fillStyle = '#000';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 4;
             const arrowAngle = Math.atan2(centerY - y, centerX - x);
-            const arrowDist = 50;
-            const arrowX = x + Math.cos(arrowAngle) * arrowDist;
-            const arrowY = y + Math.sin(arrowAngle) * arrowDist;
+            const arrowStartDist = 40;
+            const arrowEndDist = 60;
+            const arrowStartX = x + Math.cos(arrowAngle) * arrowStartDist;
+            const arrowStartY = y + Math.sin(arrowAngle) * arrowStartDist;
+            const arrowEndX = x + Math.cos(arrowAngle) * arrowEndDist;
+            const arrowEndY = y + Math.sin(arrowAngle) * arrowEndDist;
             
-            // Arrow line
             ctx.beginPath();
-            ctx.moveTo(x + Math.cos(arrowAngle) * 38, y + Math.sin(arrowAngle) * 38);
-            ctx.lineTo(arrowX, arrowY);
+            ctx.moveTo(arrowStartX, arrowStartY);
+            ctx.lineTo(arrowEndX, arrowEndY);
             ctx.stroke();
             
-            // Arrow head
-            const headLen = 10;
+            const headLen = 12;
             ctx.beginPath();
-            ctx.moveTo(arrowX, arrowY);
-            ctx.lineTo(arrowX - headLen * Math.cos(arrowAngle - Math.PI/6), 
-                      arrowY - headLen * Math.sin(arrowAngle - Math.PI/6));
-            ctx.lineTo(arrowX - headLen * Math.cos(arrowAngle + Math.PI/6), 
-                      arrowY - headLen * Math.sin(arrowAngle + Math.PI/6));
+            ctx.moveTo(arrowEndX, arrowEndY);
+            ctx.lineTo(arrowEndX - headLen * Math.cos(arrowAngle - Math.PI/6),
+                      arrowEndY - headLen * Math.sin(arrowAngle - Math.PI/6));
+            ctx.lineTo(arrowEndX - headLen * Math.cos(arrowAngle + Math.PI/6),
+                      arrowEndY - headLen * Math.sin(arrowAngle + Math.PI/6));
             ctx.closePath();
             ctx.fill();
             
         } else if (node.tags.includes('SAFE_COLOR')) {
-            // Colored safe squares - vivid colors, wider rectangles
+            // Colored squares on the paths
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
-            const width = 28;
+            const width = 32;
+            const height = 24;
+            ctx.fillRect(x - width/2, y - height/2, width, height);
+            ctx.strokeRect(x - width/2, y - height/2, width, height);
+        } else if (!node.tags.includes('BOX')) {
+            // Regular spaces (beige rectangles)
+            ctx.fillStyle = '#E8D4B0';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2.5;
+            const width = 30;
             const height = 22;
-            ctx.fillRect(x - width/2, y - height/2, width, height);
-            ctx.strokeRect(x - width/2, y - height/2, width, height);
-        } else if (node.tags.includes('CENTER')) {
-            // Center cross - beige like normal spaces, slightly wider
-            ctx.fillStyle = '#E8D4B0';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            const width = 26;
-            const height = 20;
-            ctx.fillRect(x - width/2, y - height/2, width, height);
-            ctx.strokeRect(x - width/2, y - height/2, width, height);
-        } else {
-            // Normal spaces - beige/wood color, wider rectangles
-            ctx.fillStyle = '#E8D4B0';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            const width = 26;
-            const height = 20;
             ctx.fillRect(x - width/2, y - height/2, width, height);
             ctx.strokeRect(x - width/2, y - height/2, width, height);
         }
     });
+    
+    // Draw radial division lines on outer ring (48 spaces)
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 48; i++) {
+        const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;
+        const x1 = centerX + Math.cos(angle) * innerRadius;
+        const y1 = centerY + Math.sin(angle) * innerRadius;
+        const x2 = centerX + Math.cos(angle) * outerRadius;
+        const y2 = centerY + Math.sin(angle) * outerRadius;
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
     
     // Draw stacks (hats on board)
     if (gameState.stacks) {
