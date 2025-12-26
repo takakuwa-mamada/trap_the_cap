@@ -518,36 +518,24 @@ function render() {
             ctx.restore();
             
         } else if (node.tags && node.tags.includes('SAFE_COLOR')) {
-            // Colored squares on the paths
+            // Colored squares - NO ROTATION, always square
             ctx.fillStyle = colorMap[node.color] || '#888';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
-            const width = 30;
-            const height = 24;
+            const size = 28;
             
-            ctx.save();
-            ctx.translate(x, y);
-            const angle = Math.atan2(y - centerY, x - centerX);
-            ctx.rotate(angle);
-            ctx.fillRect(-width/2, -height/2, width, height);
-            ctx.strokeRect(-width/2, -height/2, width, height);
-            ctx.restore();
+            ctx.fillRect(x - size/2, y - size/2, size, size);
+            ctx.strokeRect(x - size/2, y - size/2, size, size);
             
         } else if (!node.tags || !node.tags.includes('BOX')) {
-            // Regular spaces (beige rectangles oriented along the path)
+            // Regular spaces - beige squares, NO ROTATION
             ctx.fillStyle = '#E8D4B0';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 2.5;
-            const width = 28;
-            const height = 20;
+            const size = 26;
             
-            ctx.save();
-            ctx.translate(x, y);
-            const angle = Math.atan2(y - centerY, x - centerX);
-            ctx.rotate(angle);
-            ctx.fillRect(-width/2, -height/2, width, height);
-            ctx.strokeRect(-width/2, -height/2, width, height);
-            ctx.restore();
+            ctx.fillRect(x - size/2, y - size/2, size, size);
+            ctx.strokeRect(x - size/2, y - size/2, size, size);
         }
     });
     
