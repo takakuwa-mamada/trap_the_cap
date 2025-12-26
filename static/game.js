@@ -481,61 +481,6 @@ function render() {
     ctx.arc(centerX, centerY, 0.8 * SCALE, 0, Math.PI * 2);
     ctx.fill();
     
-    // === STEP 4: Draw division lines on outer ring ===
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2.5;
-    for (let i = 0; i < 48; i++) {
-        const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;  // Start from top
-        const x1 = centerX + Math.cos(angle) * (ringRadius - ringWidth/2);
-        const y1 = centerY + Math.sin(angle) * (ringRadius - ringWidth/2);
-        const x2 = centerX + Math.cos(angle) * (ringRadius + ringWidth/2);
-        const y2 = centerY + Math.sin(angle) * (ringRadius + ringWidth/2);
-        
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
-    
-    // === STEP 5: Draw division lines on cross paths ===
-    const crossDivLineLength = crossWidth / 2 + 5;
-    
-    // North cross (vertical)
-    for (let i = 1; i <= 2; i++) {
-        const y = centerY - i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(centerX - crossDivLineLength, y);
-        ctx.lineTo(centerX + crossDivLineLength, y);
-        ctx.stroke();
-    }
-    
-    // South cross (vertical)
-    for (let i = 1; i <= 2; i++) {
-        const y = centerY + i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(centerX - crossDivLineLength, y);
-        ctx.lineTo(centerX + crossDivLineLength, y);
-        ctx.stroke();
-    }
-    
-    // East cross (horizontal)
-    for (let i = 1; i <= 2; i++) {
-        const x = centerX + i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(x, centerY - crossDivLineLength);
-        ctx.lineTo(x, centerY + crossDivLineLength);
-        ctx.stroke();
-    }
-    
-    // West cross (horizontal)
-    for (let i = 1; i <= 2; i++) {
-        const x = centerX - i * (innerRadius / 3);
-        ctx.beginPath();
-        ctx.moveTo(x, centerY - crossDivLineLength);
-        ctx.lineTo(x, centerY + crossDivLineLength);
-        ctx.stroke();
-    }
-    
     // Define colors
     const colorMap = {
         'RED': '#D32F2F',
@@ -544,7 +489,7 @@ function render() {
         'GREEN': '#388E3C'
     };
     
-    // === STEP 6: Draw colored squares only ===
+    // === STEP 4: Draw colored squares only ===
     Object.entries(nodes).forEach(([nodeId, node]) => {
         if (!node.tags) return;
         if (node.tags.includes('BOX')) return;
