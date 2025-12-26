@@ -481,6 +481,57 @@ function render() {
     ctx.arc(centerX, centerY, 0.8 * SCALE, 0, Math.PI * 2);
     ctx.fill();
     
+    // === STEP 4: Draw division lines on outer ring (48 spaces) ===
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 48; i++) {
+        const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;
+        const x1 = centerX + Math.cos(angle) * (ringRadius - ringWidth/2);
+        const y1 = centerY + Math.sin(angle) * (ringRadius - ringWidth/2);
+        const x2 = centerX + Math.cos(angle) * (ringRadius + ringWidth/2);
+        const y2 = centerY + Math.sin(angle) * (ringRadius + ringWidth/2);
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+    
+    // === STEP 5: Draw division lines on X-cross paths ===
+    const crossDivLength = crossWidth / 2 + 3;
+    
+    // Vertical lines on North-South cross
+    for (let i = 1; i <= 2; i++) {
+        const y = centerY - i * (innerRadius / 3);
+        ctx.beginPath();
+        ctx.moveTo(centerX - crossDivLength, y);
+        ctx.lineTo(centerX + crossDivLength, y);
+        ctx.stroke();
+    }
+    for (let i = 1; i <= 2; i++) {
+        const y = centerY + i * (innerRadius / 3);
+        ctx.beginPath();
+        ctx.moveTo(centerX - crossDivLength, y);
+        ctx.lineTo(centerX + crossDivLength, y);
+        ctx.stroke();
+    }
+    
+    // Horizontal lines on East-West cross
+    for (let i = 1; i <= 2; i++) {
+        const x = centerX + i * (innerRadius / 3);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - crossDivLength);
+        ctx.lineTo(x, centerY + crossDivLength);
+        ctx.stroke();
+    }
+    for (let i = 1; i <= 2; i++) {
+        const x = centerX - i * (innerRadius / 3);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - crossDivLength);
+        ctx.lineTo(x, centerY + crossDivLength);
+        ctx.stroke();
+    }
+    
     // Define colors
     const colorMap = {
         'RED': '#D32F2F',
@@ -489,7 +540,7 @@ function render() {
         'GREEN': '#388E3C'
     };
     
-    // === STEP 4: Draw colored squares only ===
+    // === STEP 6: Draw colored squares ===
     Object.entries(nodes).forEach(([nodeId, node]) => {
         if (!node.tags) return;
         if (node.tags.includes('BOX')) return;
