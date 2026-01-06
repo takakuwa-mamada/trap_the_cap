@@ -1,3 +1,7 @@
+"""Coppit Online - FastAPIアプリケーションのメインモジュール.
+
+WebSocketサーバー、静的ファイル配信、ゲームロジックの統合を行います。
+"""
 import asyncio
 import json
 import os

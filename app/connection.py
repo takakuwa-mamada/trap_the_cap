@@ -1,3 +1,8 @@
+"""WebSocket接続管理とゲーム状態の永続化を担当するモジュール.
+
+WebSocketクライアントとの接続を管理し、Redisまたはインメモリストアで
+ゲーム状態を保存・取得します。
+"""
 import os
 import json
 import asyncio
@@ -15,10 +20,14 @@ from app.engine import (
 logger = logging.getLogger(__name__)
 
 class InMemoryStore:
-    """In-memory fallback for local development without Redis"""
+    """Redisが利用できない場合のインメモリストア実装.
+    
+    ローカル開発環境やRedis未設定の環境でゲーム状態を保持します。
+    プロセス再起動時にデータは失われます。
+    """
     def __init__(self):
         self.store: Dict[str, str] = {}
-        logger.info("Using in-memory store (Redis not available)")
+        logger.info("[Storage] Using in-memory store (Redis not available)")
     
     async def get(self, key: str) -> Optional[str]:
         return self.store.get(key)

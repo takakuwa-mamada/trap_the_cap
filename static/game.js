@@ -1,4 +1,9 @@
-// Version: 2.0 - Fixed legal_pieces handling
+/**
+ * Coppit Online - クライアントサイドゲームロジック
+ * Version: 3.0 - スマホ対応 & レスポンシブデザイン
+ */
+
+// URLパラメータからルームIDとプレイヤーIDを取得
 const params = new URLSearchParams(window.location.search);
 const roomId = params.get('room') || 'test_room';
 const playerId = params.get('player') || 'p_' + Math.floor(Math.random() * 1000);
@@ -7,7 +12,7 @@ console.log('[Init] Room:', roomId, 'Player:', playerId);
 console.log('[Init] Protocol:', window.location.protocol);
 console.log('[Init] Host:', window.location.host);
 
-// グローバル変数の宣言（先に宣言）
+// グローバル変数の宣言
 let gameState = null;
 let legalStacks = [];
 let legalDirections = [];
@@ -21,7 +26,6 @@ const logDiv = document.getElementById('log');
 const rollBtn = document.getElementById('rollBtn');
 const statusDiv = document.getElementById('status');
 const directionButtonsDiv = document.getElementById('direction-buttons');
-const resetBtn = document.getElementById('resetBtn');
 const resetBtn = document.getElementById('resetBtn');
 
 // Settings - 動的に計算
